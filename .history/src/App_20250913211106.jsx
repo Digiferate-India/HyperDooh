@@ -249,7 +249,7 @@ export default function App() {
             <div className="mt-16 flow-root sm:mt-24">
               <div className="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4">
                 <img
-                  src="https://i.postimg.cc/j54gzppT/carfinale.png"
+                  src="https://i.postimg.cc/Fz3b4xXB/1.png"
                   alt="App screenshot"
                   className="rounded-md shadow-2xl ring-1 ring-gray-900/10 w-full"
                 />
@@ -349,14 +349,14 @@ export default function App() {
               <h3 className="text-xl text-black font-bold text-center">
                 Signage Connection
               </h3>
-              <p className="mt-2 mb-7 text-gray-900 text-center">
+              <p className="mt-2 mb-7 text-gray-900">
                 Easily collaborate with colleagues to quickly solve complex
                 problems, as well as allow customers to track progress in real
                 time.
               </p>
               <div className="mt-6 -m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-white/10 lg:-m-4 lg:rounded-2xl lg:p-4">
                 <img
-                  src="https://i.postimg.cc/NfbH9xwm/Gemini-Generated-Image-35ugqk35ugqk35ug.png"
+                  src="https://i.postimg.cc/9FKy8K3Y/2.png"
                   alt="Feature 1"
                   className="rounded-md w-full"
                 />
@@ -367,7 +367,7 @@ export default function App() {
                 <h3 className="text-xl text-black font-bold text-center">
                   Multiplayer with CV
                 </h3>
-                <p className="mt-2 mb-7 text-gray-900 text-center">
+                <p className="mt-2 mb-7 text-gray-900">
                   Track and engage with audiences as they move through your
                   stores and spaces.
                 </p>
@@ -383,7 +383,7 @@ export default function App() {
                 <h3 className="text-xl text-black font-bold text-center">Lightning fast</h3>
                 <p className="mt-2 mb-7 text-gray-900">
                   Update content and playlists on one, or thousands of screens
-                  in an instant on the digital signage devices.
+                  in an instant.
                 </p>
                 <div className="mt-6 -m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-white/10 lg:-m-4 lg:rounded-2xl lg:p-4">
                   <img

@@ -202,21 +202,36 @@ export default function App() {
                 </a>
               </div>
               <div className="lg:flex lg:gap-x-12">
-                <a href="#" className="">
+                <a
+                  href="#"
+                  className=""
+                >
                   Product
                 </a>
-                <a href="#" className="">
+                <a
+                  href="#"
+                  className=""
+                >
                   Pricing
                 </a>
-                <a href="#" className="">
+                <a
+                  href="#"
+                  className=""
+                >
                   Company
                 </a>
-                <a href="#" className="">
+                <a
+                  href="#"
+                  className=""
+                >
                   Blog
                 </a>
               </div>
               <div className="mr-5.5 hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-7 items-center">
-                <a href="#" className="text-sm font-semibold leading-6">
+                <a
+                  href="#"
+                  className="text-sm font-semibold leading-6"
+                >
                   Sign in
                 </a>
                 <a
@@ -249,7 +264,7 @@ export default function App() {
             <div className="mt-16 flow-root sm:mt-24">
               <div className="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4">
                 <img
-                  src="https://i.postimg.cc/j54gzppT/carfinale.png"
+                  src="https://i.postimg.cc/Fz3b4xXB/1.png"
                   alt="App screenshot"
                   className="rounded-md shadow-2xl ring-1 ring-gray-900/10 w-full"
                 />
@@ -346,44 +361,41 @@ export default function App() {
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-8 max-w-7xl mx-auto">
             <div className="bg-white/3 rounded-2xl p-8 shadow-xl">
-              <h3 className="text-xl text-black font-bold text-center">
+              <h3 className="text-xl text-black font-bold">
                 Signage Connection
               </h3>
-              <p className="mt-2 mb-7 text-gray-900 text-center">
+              <p className="mt-2 mb-7 text-gray-900">
                 Easily collaborate with colleagues to quickly solve complex
                 problems, as well as allow customers to track progress in real
                 time.
               </p>
               <div className="mt-6 -m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-white/10 lg:-m-4 lg:rounded-2xl lg:p-4">
                 <img
-                  src="https://i.postimg.cc/NfbH9xwm/Gemini-Generated-Image-35ugqk35ugqk35ug.png"
+                  src="https://i.postimg.cc/9FKy8K3Y/2.png"
                   alt="Feature 1"
                   className="rounded-md w-full"
                 />
               </div>
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="bg-white/3 rounded-2xl p-8 shadow-xl">
-                <h3 className="text-xl text-black font-bold text-center">
-                  Multiplayer with CV
-                </h3>
-                <p className="mt-2 mb-7 text-gray-900 text-center">
-                  Track and engage with audiences as they move through your
-                  stores and spaces.
+            <div className="bg-white/3 rounded-2xl p-8 shadow-xl">
+                <h3 className="text-xl text-black font-bold">Lightning fast</h3>
+                <p className="mt-2 mb-7 text-gray-900">
+                  Update content and playlists on one, or thousands of screens
+                  in an instant.
                 </p>
                 <div className="mt-6 -m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-white/10 lg:-m-4 lg:rounded-2xl lg:p-4">
                   <img
-                    src="https://i.postimg.cc/zfmymHky/Gemini-Generated-Image-ktp6nektp6nektp6.png"
-                    alt="Feature 2"
+                    src="https://i.postimg.cc/jjczqj9R/Generated-Image-September-11-2025-11-34-AM.png"
+                    alt="Feature 3"
                     className="rounded-md w-full object-cover aspect-[4/5]"
                   />
                 </div>
               </div>
-              <div className="bg-white/3 rounded-2xl p-8 shadow-xl text-center">
-                <h3 className="text-xl text-black font-bold text-center">Lightning fast</h3>
+              <div className="bg-white/3 rounded-2xl p-8 shadow-xl">
+                <h3 className="text-xl text-black font-bold">Lightning fast</h3>
                 <p className="mt-2 mb-7 text-gray-900">
                   Update content and playlists on one, or thousands of screens
-                  in an instant on the digital signage devices.
+                  in an instant.
                 </p>
                 <div className="mt-6 -m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-white/10 lg:-m-4 lg:rounded-2xl lg:p-4">
                   <img
@@ -394,15 +406,13 @@ export default function App() {
                 </div>
               </div>
             </div>
-            {/* --- THIS SECTION IS NOW FULL-WIDTH --- */}
-            <div className="bg-white/3 rounded-2xl p-8 shadow-xl text-center">
-              <h3 className="text-xl text-black font-bold text-center">
-                Signage Connection
+            {/* --- NEWLY ADDED FULL-WIDTH SECTION --- */}
+            <div className="bg-white/3 rounded-2xl p-8 shadow-xl">
+              <h3 className="text-xl text-black font-bold">
+                Crowd Management
               </h3>
               <p className="mt-2 mb-7 text-gray-900">
-                Easily collaborate with colleagues to quickly solve complex
-                problems, as well as allow customers to track progress in real
-                time.
+                Easily manage crowds with a lot of people using realtime digital signage connection.
               </p>
               <div className="mt-6 -m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-white/10 lg:-m-4 lg:rounded-2xl lg:p-4">
                 <div className="relative aspect-video overflow-hidden rounded-md">
@@ -418,6 +428,7 @@ export default function App() {
                 </div>
               </div>
             </div>
+            {/* --- END OF NEWLY ADDED SECTION --- */}
           </div>
         </div>
       </div>
