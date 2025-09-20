@@ -1,7 +1,6 @@
 import React, { useLayoutEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { HeroCarousel } from './HeroCarousel';
 
 // --- Register GSAP Plugin ---
 gsap.registerPlugin(ScrollTrigger);
@@ -333,7 +332,11 @@ export default function App() {
             </div>
             <div id="hero-image" className="mt-16 flow-root sm:mt-24">
               <div className="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4">
-               <HeroCarousel />
+                <img
+                  src="https://i.postimg.cc/RZ8j1QFh/carfinale.png"
+                  alt="App screenshot"
+                  className="rounded-md shadow-2xl ring-1 ring-gray-900/10 w-full"
+                />
               </div>
             </div>
           </div>
