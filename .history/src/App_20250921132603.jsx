@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar'; // NO CURLY BRACES
+import { Navbar } from './components/Navbar';
 import Home from './pages/Home';
 import About from './pages/About';
 
