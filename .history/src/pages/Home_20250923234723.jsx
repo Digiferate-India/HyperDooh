@@ -398,7 +398,7 @@ export default function App() {
               </p>
               <div className="mt-6 -m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-white/10 lg:-m-4 lg:rounded-2xl lg:p-4">
                 <img
-                  src="https://i.postimg.cc/c4BDWRH5/signcomputer.png"
+                  src="https://i.postimg.cc/sXg6Hvy0/signcomputer.png"
                   alt="Feature 1"
                   className="rounded-md w-full"
                 />
