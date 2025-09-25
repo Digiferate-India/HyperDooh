@@ -112,8 +112,8 @@ const About = () => {
 
           <div className="mb-12">
             <h3 className="text-2xl font-bold text-indigo-400 mb-6 text-center">What Is Digital Signage?</h3>
-            <div className="bg-white rounded-2xl p-6 shadow-lg">
-              <p className="text-lg text-black">
+            <div className="bg-gray-700 rounded-2xl p-6 shadow-lg">
+              <p className="text-lg text-gray-300">
                 Digital signage refers to the use of electronic displays (such as LED, LCD, and OLED screens) to deliver targeted information, advertisements, and multimedia content. Advanced content management systems (CMS) empower businesses to update messages instantly and tailor content for specific audiences.
               </p>
             </div>
@@ -191,13 +191,13 @@ const About = () => {
       </div>
 
       {/* Team Section - Full Width */}
-      <div className="w-full py-20 px-4 sm:px-6 lg:px-8 bg-white">
+      <div className="w-full py-20 px-4 sm:px-6 lg:px-8">
         <div className="w-full">
           <div className="text-center mb-16 w-full">
             <h2 className="text-3xl md:text-4xl font-bold text-indigo-400 mb-4">
               Meet Our Team
             </h2>
-            <p className="text-xl text-black max-w-3xl mx-auto">
+            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
               Talented professionals dedicated to delivering exceptional digital
               experiences
             </p>
@@ -269,12 +269,12 @@ const About = () => {
       </div>
 
       {/* Footer Section - Full Width */}
-      <div className="w-full py-12 bg-white">
+      <div className="w-full py-12 bg-gray-900">
         <div className="w-full px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-black text-sm mb-4">
+          <p className="text-gray-400 text-sm mb-4">
            HyperDOOH – Digiferate's Dynamic DOOH
           </p>
-          <p className="text-black text-xs max-w-2xl mx-auto">
+          <p className="text-gray-500 text-xs max-w-2xl mx-auto">
             Digiferate offers a synergetic cloud content management (HyperDOOH) offering powerful capabilities that can store and deliver content dynamically, enabling real time adjustment.Our cloud CMS works just like Social Media Platforms, finding the right audience based on the configuration provided.It is fine tuned to adjust content based on population, audience segmentation, demographics and dwell time on ads.
           </p>
         </div>

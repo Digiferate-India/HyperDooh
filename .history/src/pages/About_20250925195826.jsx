@@ -274,7 +274,7 @@ const About = () => {
           <p className="text-black text-sm mb-4">
            HyperDOOH – Digiferate's Dynamic DOOH
           </p>
-          <p className="text-black text-xs max-w-2xl mx-auto">
+          <p className="text-gray-500 text-xs max-w-2xl mx-auto">
             Digiferate offers a synergetic cloud content management (HyperDOOH) offering powerful capabilities that can store and deliver content dynamically, enabling real time adjustment.Our cloud CMS works just like Social Media Platforms, finding the right audience based on the configuration provided.It is fine tuned to adjust content based on population, audience segmentation, demographics and dwell time on ads.
           </p>
         </div>
