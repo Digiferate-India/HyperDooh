@@ -63,6 +63,15 @@ const digitalSignageBenefits = [
   }
 ];
 
+const applications = [
+  { name: "Retail Stores", description: "Promote offers, guide shoppers, and enhance in-store engagement." },
+  { name: "Transportation", description: "Inform commuters with schedules, alerts, and advertising." },
+  { name: "Corporate Offices", description: "Improve internal communication and brand reception in lobbies." },
+  { name: "Healthcare", description: "Share critical updates and wayfinding assistance." },
+  { name: "Education", description: "Display announcements and emergency information." },
+  { name: "Hospitality", description: "Enhance guest experience with information and promotions." }
+];
+
 const technologies = [
   { name: "AI & Analytics", description: "Integration of AI enables predictive content scheduling, audience analysis, and hyper-personalized messaging." },
   { name: "4K/8K UHD Displays", description: "Ultra-high definition displays deliver sharper images for impactful advertisements." },

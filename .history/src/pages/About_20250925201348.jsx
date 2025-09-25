@@ -63,6 +63,15 @@ const digitalSignageBenefits = [
   }
 ];
 
+const applications = [
+  { name: "Retail Stores", description: "Promote offers, guide shoppers, and enhance in-store engagement." },
+  { name: "Transportation", description: "Inform commuters with schedules, alerts, and advertising." },
+  { name: "Corporate Offices", description: "Improve internal communication and brand reception in lobbies." },
+  { name: "Healthcare", description: "Share critical updates and wayfinding assistance." },
+  { name: "Education", description: "Display announcements and emergency information." },
+  { name: "Hospitality", description: "Enhance guest experience with information and promotions." }
+];
+
 const technologies = [
   { name: "AI & Analytics", description: "Integration of AI enables predictive content scheduling, audience analysis, and hyper-personalized messaging." },
   { name: "4K/8K UHD Displays", description: "Ultra-high definition displays deliver sharper images for impactful advertisements." },
@@ -135,7 +144,14 @@ const About = () => {
 
           <div className="mb-12">
             <h3 className="text-2xl font-bold text-indigo-400 mb-6 text-center">Applications</h3>
-            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {applications.map((app, index) => (
+                <div key={index} className="bg-gray-700 rounded-2xl p-6 shadow-lg">
+                  <h4 className="text-lg font-semibold text-white mb-2">{app.name}</h4>
+                  <p className="text-gray-300">{app.description}</p>
+                </div>
+              ))}
+            </div>
           </div>
 
           <AboutCarousel />
