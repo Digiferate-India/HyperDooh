@@ -51,7 +51,7 @@ const Login = () => {
             <div className="bg-black/40 backdrop-blur-md rounded-3xl p-10 border border-white/20">
               <h1 className="text-xl font-semibold">HyperDooh</h1>
               <p className="mt-10 text-4xl font-bold leading-snug">
-                Reach your audience, Bold and fearless with specialized audience targeting options.
+                Reach your audience, Bold and fearless with specialized audience targeting options
               </p>
               <div className="flex mt-8 space-x-2">
                 <span className="w-3 h-3 bg-white/50 rounded-full"></span>
