@@ -7,7 +7,7 @@ function Sidebar() {
     // ✅ Step 2: Add flex styles to position the button at the bottom
     <nav className="w-64 h-screen bg-gray-100 border-r border-gray-200 p-6 flex flex-col">
       <div>
-        <h2 className="text-xl font-bold mb-8">Digital Signage CMS</h2>
+        <h2 className="text-xl font-bold mb-8 text-black">Digital Signage CMS</h2>
         <ul className="space-y-4">
           <li>
             <Link to="/dashboard" className="text-gray-700 hover:text-blue-600">Dashboard</Link>

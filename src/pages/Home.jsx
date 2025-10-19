@@ -251,7 +251,7 @@ export default function App() {
   return (
     <div
       ref={main}
-      className="bg-[#ffffff] min-h-[30vh] w-screen font-sans text-white overflow-x-hidden"
+      className="bg-[#ffffff] min-h-[30vh] w-full font-sans text-white"
     >
       {/* --- GRADIENT & BLACK SECTION START --- */}
       <div className="relative isolate bg-black text-white">

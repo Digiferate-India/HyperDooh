@@ -12,7 +12,7 @@ import DashboardHome from "./pages/dashboard/DashboardHome";
 import PairScreen from "./pages/PairScreen";
 import UploadMedia from "./pages/UploadMedia"; // Added missing import
 import AssignContent from "./pages/AssignContent";
-import "./app.css"; // ✅ Make sure this is here!
+import "./App.css"; // ✅ Make sure this is here!
 import PlaybackScreen from "./pages/PlaybackScreen";
 
 function App() {
