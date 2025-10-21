@@ -1,13 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from "react"; 
 import { supabase } from "../lib/supabaseClient";
 
-// --- FolderIcon (no change) ---
+// --- FolderIcon component (no change) ---
 function FolderIcon() {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="currentColor"
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      viewBox="0 0 24 24" 
+      fill="currentColor" 
       style={{ width: "150px", height: "150px", color: "#f3b049" }}
     >
       <path d="M19.5 21a3 3 0 003-3v-9a3 3 0 00-3-3h-5.604A3.375 3.375 0 0111.396 3H7.5a3 3 0 00-3 3v12a3 3 0 003 3h12z" />
@@ -15,19 +15,20 @@ function FolderIcon() {
   );
 }
 
-// --- MediaFile component (no change) ---
+// ✅ --- MediaFile component (UPDATED) ---
+// It now takes 'onFileDelete'
 function MediaFile({ file, folders, onFileMove, onFileDelete }) {
+  
   const handleMove = (event) => {
     const folderId = event.target.value;
     if (!folderId) return;
     onFileMove(file.id, folderId);
   };
-
+  
+  // ✅ NEW: Call the delete function
   const handleDelete = () => {
-    if (
-      window.confirm("Are you sure you want to delete this file permanently?")
-    ) {
-      onFileDelete(file);
+    if (window.confirm("Are you sure you want to delete this file permanently?")) {
+      onFileDelete(file); // Pass the whole file object
     }
   };
 
@@ -39,6 +40,7 @@ function MediaFile({ file, folders, onFileMove, onFileDelete }) {
         borderRadius: "8px",
       }}
     >
+      {/* ... (image/video) ... */}
       {file.file_type.includes("image") ? (
         <img
           src={file.file_path}
@@ -63,34 +65,36 @@ function MediaFile({ file, folders, onFileMove, onFileDelete }) {
         {file.file_name}
       </p>
 
-      <select
-        onChange={handleMove}
-        style={{
-          width: "100%",
-          marginTop: "0.5rem",
+      {/* "Move to" Dropdown (no change) */}
+      <select 
+        onChange={handleMove} 
+        style={{ 
+          width: "100%", 
+          marginTop: "0.5rem", 
           color: "#333",
-          padding: "4px",
+          padding: "4px"
         }}
       >
         <option value="">Move to...</option>
-        {folders.map((folder) => (
+        {folders.map(folder => (
           <option key={folder.id} value={folder.id}>
             {folder.name}
           </option>
         ))}
       </select>
-
+      
+      {/* ✅ NEW: Delete Button */}
       <button
         onClick={handleDelete}
         style={{
           width: "100%",
           marginTop: "0.5rem",
           padding: "4px",
-          backgroundColor: "#dc3545",
+          backgroundColor: "#dc3545", // Red color
           color: "white",
           border: "none",
           borderRadius: "4px",
-          cursor: "pointer",
+          cursor: "pointer"
         }}
       >
         Delete
@@ -99,74 +103,22 @@ function MediaFile({ file, folders, onFileMove, onFileDelete }) {
   );
 }
 
-// --- FolderCard component (no change) ---
-function FolderCard({ folder, onClick, onFolderDelete }) {
-  const handleDeleteClick = (e) => {
-    e.stopPropagation();
-
-    if (
-      window.confirm(
-        `Are you sure you want to delete the "${folder.name}" folder? All media inside will be moved to "Unassigned".`
-      )
-    ) {
-      onFolderDelete(folder.id);
-    }
-  };
-
-  return (
-    <div
-      onClick={onClick}
-      style={{
-        padding: "0.5rem",
-        borderRadius: "8px",
-        textAlign: "center",
-        cursor: "pointer",
-        border: "1px solid #eee",
-        position: "relative",
-      }}
-    >
-      <button
-        onClick={handleDeleteClick}
-        style={{
-          position: "absolute",
-          top: "10px",
-          right: "10px",
-          backgroundColor: "rgba(220, 53, 69, 0.8)",
-          color: "white",
-          border: "none",
-          borderRadius: "29%",
-          width: "24px",
-          height: "24px",
-          cursor: "pointer",
-          fontWeight: "bold",
-          lineHeight: "5px",
-        }}
-        title="Delete folder"
-      >
-        X
-      </button>
-
-      <FolderIcon />
-      <p>{folder.name}</p>
-    </div>
-  );
-}
 
 function UploadMedia() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [mediaFiles, setMediaFiles] = useState([]);
-  const [folders, setFolders] = useState([]);
-  const [isLoadingList, setIsLoadingList] = useState(true);
-  const [currentFolder, setCurrentFolder] = useState(null);
 
-  // --- fetchLibrary (no change) ---
+  const [mediaFiles, setMediaFiles] = useState([]);
+  const [folders, setFolders] = useState([]); 
+  const [isLoadingList, setIsLoadingList] = useState(true);
+  
+  const [currentFolder, setCurrentFolder] = useState(null); 
+
+  // --- fetchLibrary function (no change) ---
   const fetchLibrary = async () => {
     setIsLoadingList(true);
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       const { data: foldersData, error: foldersError } = await supabase
         .from("folders")
@@ -192,7 +144,7 @@ function UploadMedia() {
     fetchLibrary();
   }, []);
 
-  // --- handleFileChange (no change) ---
+  // --- handleFileChange function (no change) ---
   const handleFileChange = (event) => {
     if (event.target.files) {
       setSelectedFile(event.target.files[0]);
@@ -204,12 +156,10 @@ function UploadMedia() {
     if (!selectedFile) return;
     setIsUploading(true);
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("You must be logged in to upload media.");
       const fileName = `${Date.now()}-${selectedFile.name}`;
-      const filePath = `${user.id}/${fileName}`;
+      const filePath = `${user.id}/${fileName}`; 
       const { error: uploadError } = await supabase.storage
         .from("media")
         .upload(filePath, selectedFile);
@@ -222,7 +172,7 @@ function UploadMedia() {
         file_path: urlData.publicUrl,
         file_type: selectedFile.type,
         user_id: user.id,
-        folder_id: currentFolder ? currentFolder.id : null,
+        folder_id: currentFolder ? currentFolder.id : null, 
       };
       const { error: insertError } = await supabase
         .from("media")
@@ -241,120 +191,97 @@ function UploadMedia() {
   // --- handleCreateFolder (no change) ---
   const handleCreateFolder = async () => {
     const folderName = window.prompt("Enter a name for your new folder:");
-    if (!folderName) return;
+    if (!folderName) return; 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("You must be logged in.");
       const { error } = await supabase
         .from("folders")
-        .insert({ name: folderName, user_id: user.id });
+        .insert({ name: name, user_id: user.id }); 
       if (error) throw error;
       alert("Folder created!");
-      fetchLibrary();
+      fetchLibrary(); 
     } catch (error) {
       alert("Error creating folder: " + error.message);
     }
   };
-
+  
   // --- handleFileMove (no change) ---
   const handleFileMove = async (fileId, targetFolderId) => {
     try {
       const { error } = await supabase
         .from("media")
-        .update({ folder_id: targetFolderId })
-        .eq("id", fileId);
+        .update({ folder_id: targetFolderId }) 
+        .eq("id", fileId); 
       if (error) throw error;
       alert("File moved successfully!");
-      fetchLibrary();
+      fetchLibrary(); 
     } catch (error) {
       alert("Error moving file: " + error.message);
     }
   };
-
-  // --- handleFileDelete (no change) ---
+  
+  // ✅ --- NEW: Function to delete a file ---
   const handleFileDelete = async (file) => {
     try {
-      const storagePath = file.file_path.split("/media/")[1];
+      // 1. Get the storage path from the full public URL
+      // The URL is like: .../public/media/USER_ID/FILENAME.jpg
+      // We need the part "USER_ID/FILENAME.jpg"
+      const storagePath = file.file_path.split('/media/')[1];
+      
+      // 2. Delete from Storage
       const { error: storageError } = await supabase.storage
-        .from("media")
+        .from('media')
         .remove([storagePath]);
+        
       if (storageError) throw storageError;
+      
+      // 3. Delete from Database
       const { error: dbError } = await supabase
-        .from("media")
+        .from('media')
         .delete()
-        .eq("id", file.id);
+        .eq('id', file.id);
+        
       if (dbError) throw dbError;
+
       alert("File deleted successfully!");
-      fetchLibrary();
+      fetchLibrary(); // Refresh the list
+      
     } catch (error) {
       alert("Error deleting file: " + error.message);
     }
   };
 
-  // --- handleFolderDelete (no change) ---
-  const handleFolderDelete = async (folderId) => {
-    try {
-      const { error } = await supabase.rpc("delete_folder_and_unassign_media", {
-        p_folder_id: folderId,
-      });
-
-      if (error) throw error;
-
-      alert("Folder deleted successfully! Media has been unassigned.");
-      fetchLibrary();
-    } catch (error) {
-      alert("Error deleting folder: " + error.message);
-    }
-  };
-
   // --- Helper variables (no change) ---
   const mediaInCurrentFolder = mediaFiles.filter(
-    (file) => file.folder_id === currentFolder?.id
+    file => file.folder_id === currentFolder?.id
   );
-  const mediaWithoutFolders = mediaFiles.filter((file) => !file.folder_id);
+  const mediaWithoutFolders = mediaFiles.filter(file => !file.folder_id);
 
   // --- VIEW 1: Inside a folder (UPDATED) ---
   if (currentFolder) {
     return (
-      <div className="p-6 bg-white text-gray-900 min-h-screen">
-        <button
-          onClick={() => setCurrentFolder(null)}
-          className="mb-4 font-semibold text-white hover:underline" // Changed from text-blue-600
-        >
+      <div className="p-6 bg-white text-gray-900 min-h-screen"> 
+        <button onClick={() => setCurrentFolder(null)}>
           &larr; Back to Library
         </button>
         <h1>{currentFolder.name}</h1>
-
-        <div
-          style={{
-            margin: "2rem 0",
-            padding: "1rem",
-            border: "1px dashed #ccc",
-          }}
-        >
+        
+        {/* ... (upload form) ... */}
+        <div style={{ margin: "2rem 0", padding: "1rem", border: "1px dashed #ccc" }}>
           <h3>Upload to "{currentFolder.name}"</h3>
-
-          {/* ✅ --- THIS IS THE FIXED LINE --- ✅ */}
-          <input
-            type="file"
-            accept="image/*,video/*"
-            onChange={handleFileChange}
-          />
-
+          <input type="file" accept="image/*,video/*" onChange={handleFileChange} />
           <button
             onClick={handleUpload}
             disabled={!selectedFile || isUploading}
             style={{
-              backgroundColor:
-                !selectedFile || isUploading ? "#ccc" : "#007bff",
+              backgroundColor: !selectedFile || isUploading ? "#ccc" : "#007bff",
               color: "#fff",
               padding: "8px 16px",
               border: "none",
               borderRadius: "6px",
               cursor: "pointer",
-              marginLeft: "10px",
+              marginLeft: "10px"
             }}
           >
             {isUploading ? "Uploading..." : "Upload"}
@@ -367,12 +294,13 @@ function UploadMedia() {
           <p>Loading...</p>
         ) : (
           <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
+            {/* ✅ NEW: Pass onFileDelete prop */}
             {mediaInCurrentFolder.map((file) => (
-              <MediaFile
-                key={file.id}
-                file={file}
-                folders={folders}
-                onFileMove={handleFileMove}
+              <MediaFile 
+                key={file.id} 
+                file={file} 
+                folders={folders} 
+                onFileMove={handleFileMove} 
                 onFileDelete={handleFileDelete}
               />
             ))}
@@ -382,10 +310,11 @@ function UploadMedia() {
     );
   }
 
-  // --- VIEW 2: At the "root" (no change) ---
+  // --- VIEW 2: At the "root" (UPDATED) ---
   return (
     <div className="p-6 bg-white text-gray-900 min-h-screen">
       <h1>Upload Media</h1>
+      {/* ... (upload form) ... */}
       <input type="file" accept="image/*,video/*" onChange={handleFileChange} />
       <button
         onClick={handleUpload}
@@ -396,7 +325,7 @@ function UploadMedia() {
           padding: "8px 16px",
           border: "none",
           borderRadius: "6px",
-          cursor: "pointer",
+          cursor: "pointer"
         }}
       >
         {isUploading ? "Uploading..." : "Upload"}
@@ -421,35 +350,46 @@ function UploadMedia() {
 
       <hr style={{ margin: "2rem 0" }} />
 
+      {/* ... (Display Folders) ... */}
       <h2>Your Folders</h2>
       {isLoadingList ? (
         <p>Loading...</p>
       ) : (
         <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
           {folders.map((folder) => (
-            <FolderCard
+            <div
               key={folder.id}
-              folder={folder}
-              onClick={() => setCurrentFolder(folder)}
-              onFolderDelete={handleFolderDelete}
-            />
+              onClick={() => setCurrentFolder(folder)} 
+              style={{
+                padding: "0.5rem",
+                borderRadius: "8px",
+                textAlign: "center",
+                cursor: "pointer", 
+                border: "1px solid #eee"
+              }}
+            >
+              <FolderIcon />
+              <p>{folder.name}</p>
+            </div>
           ))}
         </div>
       )}
 
       <hr style={{ margin: "2rem 0" }} />
 
+      {/* --- Media Library (unassigned) (UPDATED) --- */}
       <h2>Your Media Library (Unassigned)</h2>
       {isLoadingList ? (
         <p>Loading...</p>
       ) : (
         <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
+          {/* ✅ NEW: Pass onFileDelete prop */}
           {mediaWithoutFolders.map((file) => (
-            <MediaFile
-              key={file.id}
-              file={file}
-              folders={folders}
-              onFileMove={handleFileMove}
+            <MediaFile 
+              key={file.id} 
+              file={file} 
+              folders={folders} 
+              onFileMove={handleFileMove} 
               onFileDelete={handleFileDelete}
             />
           ))}

@@ -1,3 +1,4 @@
+// In src/pages/PairScreen.jsx
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
 
@@ -9,8 +10,8 @@ function PairScreen() {
   const [screens, setScreens] = useState([]);
   const [isLoadingList, setIsLoadingList] = useState(true);
 
-  // --- fetchScreens (no change) ---
   const fetchScreens = async () => {
+    // ... (This function is the same as before)
     setIsLoadingList(true);
     try {
       const {
@@ -41,8 +42,8 @@ function PairScreen() {
     fetchScreens();
   }, []);
 
-  // --- handleSubmit (no change) ---
   const handleSubmit = async (event) => {
+    // ... (This function is the same as before)
     event.preventDefault();
     setIsSubmitting(true);
     try {
@@ -77,8 +78,9 @@ function PairScreen() {
     }
   };
 
-  // --- handleDelete (no change) ---
+  // ✅ Step 1: Add the new handleDelete function
   const handleDelete = async (screenId) => {
+    // Ask for confirmation before deleting
     if (!window.confirm("Are you sure you want to delete this screen?")) {
       return;
     }
@@ -87,24 +89,22 @@ function PairScreen() {
       const { error } = await supabase
         .from("screens")
         .delete()
-        .eq("id", screenId); 
+        .eq("id", screenId); // Delete the row where the id matches
 
       if (error) throw error;
 
       alert("Screen deleted successfully!");
-      fetchScreens(); 
+      fetchScreens(); // Refresh the list of screens
     } catch (error) {
       alert("Error deleting screen: " + error.message);
     }
   };
 
-  // ✅ --- THIS LINE IS UPDATED --- ✅
   return (
-    <div className="p-6 bg-white text-gray-900 min-h-screen">
+    <div>
       <h1>Pair a New Screen</h1>
       <form onSubmit={handleSubmit}>
-        
-        {/* ✅ --- Input Styles Updated --- ✅ */}
+        {/* ...form inputs... (same as before) */}
         <div style={{ marginBottom: "1rem" }}>
           <label htmlFor="customName" style={{ display: "block" }}>
             Custom Name
@@ -118,20 +118,18 @@ function PairScreen() {
             style={{
               width: "100%",
               padding: "10px 14px",
-              border: "2px solid #ccc", // Light gray border
+              border: "2px solid #555",
               borderRadius: "8px",
-              backgroundColor: "#fff", // White background
-              color: "#333", // Dark text
+              backgroundColor: "transparent",
+              color: "#fff",
               outline: "none",
               fontSize: "16px",
               transition: "border-color 0.2s ease",
             }}
-            onFocus={(e) => (e.target.style.borderColor = "#007bff")} // Blue focus
-            onBlur={(e) => (e.target.style.borderColor = "#ccc")} // Gray blur
+            onFocus={(e) => (e.target.style.borderColor = "#00bcd4")}
+            onBlur={(e) => (e.target.style.borderColor = "#555")}
           />
         </div>
-
-        {/* ✅ --- Input Styles Updated --- ✅ */}
         <div style={{ marginBottom: "1rem" }}>
           <label htmlFor="area" style={{ display: "block" }}>
             Area
@@ -142,23 +140,8 @@ function PairScreen() {
             value={area}
             onChange={(e) => setArea(e.target.value)}
             required
-            style={{
-              width: "100%",
-              padding: "10px 14px",
-              border: "2px solid #ccc",
-              borderRadius: "8px",
-              backgroundColor: "#fff",
-              color: "#333",
-              outline: "none",
-              fontSize: "16px",
-              transition: "border-color 0.2s ease",
-            }}
-            onFocus={(e) => (e.target.style.borderColor = "#007bff")}
-            onBlur={(e) => (e.target.style.borderColor = "#ccc")}
           />
         </div>
-
-        {/* ✅ --- Input Styles Updated --- ✅ */}
         <div style={{ marginBottom: "1rem" }}>
           <label htmlFor="city" style={{ display: "block" }}>
             City
@@ -169,23 +152,8 @@ function PairScreen() {
             value={city}
             onChange={(e) => setCity(e.target.value)}
             required
-            style={{
-              width: "100%",
-              padding: "10px 14px",
-              border: "2px solid #ccc",
-              borderRadius: "8px",
-              backgroundColor: "#fff",
-              color: "#333",
-              outline: "none",
-              fontSize: "16px",
-              transition: "border-color 0.2s ease",
-            }}
-            onFocus={(e) => (e.target.style.borderColor = "#007bff")}
-            onBlur={(e) => (e.target.style.borderColor = "#ccc")}
           />
         </div>
-
-        {/* --- Button styles are fine (no change) --- */}
         <button
           type="submit"
           disabled={isSubmitting}
@@ -207,7 +175,6 @@ function PairScreen() {
 
       <hr style={{ margin: "2rem 0" }} />
 
-      {/* --- Table text will inherit dark color (no change needed) --- */}
       <h2>Existing Screens</h2>
       {isLoadingList ? (
         <p>Loading screens...</p>
@@ -221,6 +188,7 @@ function PairScreen() {
               </th>
               <th style={{ padding: "8px", textAlign: "left" }}>Status</th>
               <th style={{ padding: "8px", textAlign: "left" }}>Paired At</th>
+              {/* ✅ Step 2: Add a header for the new column */}
               <th style={{ padding: "8px", textAlign: "left" }}>Actions</th>
             </tr>
           </thead>
@@ -244,6 +212,7 @@ function PairScreen() {
                     ? new Date(screen.paired_at).toLocaleString()
                     : "N/A"}
                 </td>
+                {/* ✅ Step 3: Add the cell with the delete button */}
                 <td style={{ padding: "8px" }}>
                   <button
                     onClick={() => handleDelete(screen.id)}

@@ -16,10 +16,12 @@ function FolderIcon() {
   );
 }
 
-// --- BulkAssignForm component (no change) ---
+// ✅ --- NEW: Bulk Assign Form Component ---
+// We can define this right inside AssignContent.jsx for simplicity
 function BulkAssignForm({ folder, screenId, onClose, onSave }) {
-  const [duration, setDuration] = useState(10); 
-  const [scheduledTime, setScheduledTime] = useState(''); 
+  // State for the form fields
+  const [duration, setDuration] = useState(10); // Default to 10 seconds
+  const [scheduledTime, setScheduledTime] = useState(''); // Empty string for 'none'
   const [gender, setGender] = useState('All');
   const [ageGroup, setAgeGroup] = useState('All');
   const [isSaving, setIsSaving] = useState(false);
@@ -29,9 +31,10 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
     if (isSaving) return;
     setIsSaving(true);
     
+    // Call the onSave function passed from the parent
     await onSave({
       duration,
-      scheduledTime: scheduledTime || null, 
+      scheduledTime: scheduledTime || null, // Convert empty string to null for database
       gender,
       ageGroup,
     });
@@ -40,6 +43,7 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
   };
 
   return (
+    // This is the modal backdrop
     <div 
       style={{
         position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
@@ -47,11 +51,12 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
         display: 'flex', justifyContent: 'center', alignItems: 'center',
       }}
     >
-      <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md text-gray-900">
+      {/* This is the modal content */}
+      <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
         <h2 className="text-xl font-bold mb-4">
           Bulk-Assign Settings for "{folder.name}"
         </h2>
-        <p className="mb-4">These settings will apply to all media items in this folder for the selected screen.</p>
+        <p className="mb-4">These settings will apply to all {screenId ? '' : '...'} media items in this folder for the selected screen.</p>
         
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
@@ -60,7 +65,7 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
               type="number"
               value={duration}
               onChange={(e) => setDuration(Number(e.target.value))}
-              className="w-full border p-2 rounded-lg text-black " 
+              className="w-full border p-2 rounded-lg"
               required
             />
           </div>
@@ -71,7 +76,7 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
               type="time"
               value={scheduledTime}
               onChange={(e) => setScheduledTime(e.target.value)}
-              className="w-full border p-2 rounded-lg text-black" 
+              className="w-full border p-2 rounded-lg"
             />
           </div>
 
@@ -80,7 +85,7 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
             <select 
               value={gender} 
               onChange={(e) => setGender(e.target.value)} 
-              className="w-full border p-2 rounded-lg text-black" 
+              className="w-full border p-2 rounded-lg"
             >
               <option value="All">All</option>
               <option value="Male">Male</option>
@@ -93,7 +98,7 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
             <select 
               value={ageGroup} 
               onChange={(e) => setAgeGroup(e.target.value)} 
-              className="w-full border p-2 rounded-lg text-black" 
+              className="w-full border p-2 rounded-lg"
             >
               <option value="All">All</option>
               <option value="18-25">18-25</option>
@@ -137,6 +142,7 @@ function AssignContent() {
   const [folders, setFolders] = useState([]);
   const [currentFolder, setCurrentFolder] = useState(null); 
   
+  // ✅ --- NEW State for the modal ---
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
 
   // --- Effect to fetch data (no change) ---
@@ -194,7 +200,7 @@ function AssignContent() {
     });
   };
   
-  // ✅ --- handleBulkAssignSave (UPDATED) ---
+  // ✅ --- NEW: Function to handle the bulk save ---
   const handleBulkAssignSave = async (formData) => {
     if (!selectedScreen || !currentFolder) {
       alert("Please select a screen and a folder first.");
@@ -202,8 +208,8 @@ function AssignContent() {
     }
     
     try {
-      // ✅ --- THIS LINE IS UPDATED --- ✅
-      const { error } = await supabase.rpc('bulk_assign_folder_v2', {
+      // This calls our new database function!
+      const { error } = await supabase.rpc('bulk_assign_folder_to_screen', {
         p_screen_id: selectedScreen,
         p_folder_id: currentFolder.id,
         p_duration_sec: formData.duration,
@@ -215,8 +221,9 @@ function AssignContent() {
       if (error) throw error;
       
       alert(`Success! All media in "${currentFolder.name}" has been assigned.`);
-      setIsBulkModalOpen(false); 
+      setIsBulkModalOpen(false); // Close the modal
       
+      // Now, we must refresh the assignments for the current screen
       const { data, error: fetchError } = await supabase.from('screens_media').select('*').eq('screen_id', selectedScreen);
       if (fetchError) throw fetchError;
       
@@ -236,9 +243,8 @@ function AssignContent() {
 
   if (isLoading) return <div className="p-6">Loading...</div>;
 
-  // --- return statement (no change) ---
   return (
-    <div className="p-6 bg-white text-gray-900 min-h-screen">
+    <div className="p-6">
       {/* --- Header and Screen Selector (no change) --- */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold mb-2">Assign Content</h1>
@@ -259,18 +265,19 @@ function AssignContent() {
 
       {/* --- CONDITIONAL RENDERING --- */}
       
-      {/* VIEW 1: We are inside a folder (no change) */}
+      {/* VIEW 1: We are inside a folder (UPDATED) */}
       {currentFolder ? (
         <div>
           <button
             onClick={() => setCurrentFolder(null)} 
-            className="mb-4 font-semibold text-white hover:underline"
+            className="mb-4 font-semibold text-blue-600 hover:underline"
           >
             &larr; Back to Library
           </button>
           
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold">{currentFolder.name}</h2>
+            {/* ✅ --- NEW Button to open the modal --- */}
             <button
               onClick={() => setIsBulkModalOpen(true)}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 disabled:bg-gray-400"
@@ -307,7 +314,7 @@ function AssignContent() {
               >
                 <FolderIcon />
                 <div className="p-4">
-                  <h3 className="font-semibold truncate text-black">{folder.name}</h3>
+                  <h3 className="font-semibold truncate">{folder.name}</h3>
                 </div>
               </div>
             ))}
@@ -327,7 +334,7 @@ function AssignContent() {
         </div>
       )}
       
-      {/* --- Renders the modal (no change) --- */}
+      {/* ✅ --- NEW: This renders the modal only when isBulkModalOpen is true --- */}
       {isBulkModalOpen && currentFolder && (
         <BulkAssignForm
           folder={currentFolder}

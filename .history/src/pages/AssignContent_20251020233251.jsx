@@ -264,7 +264,7 @@ function AssignContent() {
         <div>
           <button
             onClick={() => setCurrentFolder(null)} 
-            className="mb-4 font-semibold text-white hover:underline"
+            className="mb-4 font-semibold text-blue-600 hover:underline"
           >
             &larr; Back to Library
           </button>

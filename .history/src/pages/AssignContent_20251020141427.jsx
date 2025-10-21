@@ -16,7 +16,7 @@ function FolderIcon() {
   );
 }
 
-// --- BulkAssignForm component (no change) ---
+// ✅ --- Bulk Assign Form Component (UPDATED) ---
 function BulkAssignForm({ folder, screenId, onClose, onSave }) {
   const [duration, setDuration] = useState(10); 
   const [scheduledTime, setScheduledTime] = useState(''); 
@@ -47,6 +47,7 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
         display: 'flex', justifyContent: 'center', alignItems: 'center',
       }}
     >
+      {/* ✅ --- THIS LINE IS UPDATED --- ✅ */}
       <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md text-gray-900">
         <h2 className="text-xl font-bold mb-4">
           Bulk-Assign Settings for "{folder.name}"
@@ -57,12 +58,25 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
           <div className="mb-4">
             <label className="block font-semibold mb-1">Duration (seconds):</label>
             <input
-              type="number"
-              value={duration}
-              onChange={(e) => setDuration(Number(e.target.value))}
-              className="w-full border p-2 rounded-lg text-black " 
-              required
-            />
+  id="city"
+  type="text"
+  value={city}
+  onChange={(e) => setCity(e.target.value)}
+  required
+  style={{
+    padding: '10px 14px',
+    border: '2px solid #555',
+    borderRadius: '8px',
+    backgroundColor: 'transparent',
+    color: '#fff',
+    outline: 'none',
+    fontSize: '16px',
+    transition: 'border-color 0.2s ease',
+  }}
+  onFocus={(e) => (e.target.style.borderColor = '#00bcd4')}
+  onBlur={(e) => (e.target.style.borderColor = '#555')}
+/>
+
           </div>
           
           <div className="mb-4">
@@ -71,7 +85,7 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
               type="time"
               value={scheduledTime}
               onChange={(e) => setScheduledTime(e.target.value)}
-              className="w-full border p-2 rounded-lg text-black" 
+              className="w-full border p-2 rounded-lg text-black" // Added text-black
             />
           </div>
 
@@ -80,7 +94,7 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
             <select 
               value={gender} 
               onChange={(e) => setGender(e.target.value)} 
-              className="w-full border p-2 rounded-lg text-black" 
+              className="w-full border p-2 rounded-lg text-black" // Added text-black
             >
               <option value="All">All</option>
               <option value="Male">Male</option>
@@ -93,7 +107,7 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
             <select 
               value={ageGroup} 
               onChange={(e) => setAgeGroup(e.target.value)} 
-              className="w-full border p-2 rounded-lg text-black" 
+              className="w-full border p-2 rounded-lg text-black" // Added text-black
             >
               <option value="All">All</option>
               <option value="18-25">18-25</option>
@@ -194,7 +208,7 @@ function AssignContent() {
     });
   };
   
-  // ✅ --- handleBulkAssignSave (UPDATED) ---
+  // --- handleBulkAssignSave (no change) ---
   const handleBulkAssignSave = async (formData) => {
     if (!selectedScreen || !currentFolder) {
       alert("Please select a screen and a folder first.");
@@ -202,8 +216,7 @@ function AssignContent() {
     }
     
     try {
-      // ✅ --- THIS LINE IS UPDATED --- ✅
-      const { error } = await supabase.rpc('bulk_assign_folder_v2', {
+      const { error } = await supabase.rpc('bulk_assign_folder_to_screen', {
         p_screen_id: selectedScreen,
         p_folder_id: currentFolder.id,
         p_duration_sec: formData.duration,
@@ -236,9 +249,8 @@ function AssignContent() {
 
   if (isLoading) return <div className="p-6">Loading...</div>;
 
-  // --- return statement (no change) ---
   return (
-    <div className="p-6 bg-white text-gray-900 min-h-screen">
+    <div className="p-6">
       {/* --- Header and Screen Selector (no change) --- */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold mb-2">Assign Content</h1>
@@ -264,7 +276,7 @@ function AssignContent() {
         <div>
           <button
             onClick={() => setCurrentFolder(null)} 
-            className="mb-4 font-semibold text-white hover:underline"
+            className="mb-4 font-semibold text-blue-600 hover:underline"
           >
             &larr; Back to Library
           </button>

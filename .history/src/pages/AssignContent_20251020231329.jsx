@@ -11,7 +11,7 @@ function FolderIcon() {
       fill="currentColor" 
       className="w-full h-40 object-cover text-yellow-500"
     >
-      <path d="M19.5 21a3 3 0 003-3v-9a3 3 0 00-3-3h-5.604A3.375 3.375 0 0111.396 3H7.5a3 3 0 00-3 3v12a3 3 0 003 3h12z" />
+      <path d="M19.5 21a3 3 0 003-3v-9a3 3 0 003-3h-5.604A3.375 3.375 0 0111.396 3H7.5a3 3 0 00-3 3v12a3 3 0 003 3h12z" />
     </svg>
   );
 }
@@ -194,7 +194,7 @@ function AssignContent() {
     });
   };
   
-  // ✅ --- handleBulkAssignSave (UPDATED) ---
+  // --- handleBulkAssignSave (no change) ---
   const handleBulkAssignSave = async (formData) => {
     if (!selectedScreen || !currentFolder) {
       alert("Please select a screen and a folder first.");
@@ -202,8 +202,7 @@ function AssignContent() {
     }
     
     try {
-      // ✅ --- THIS LINE IS UPDATED --- ✅
-      const { error } = await supabase.rpc('bulk_assign_folder_v2', {
+      const { error } = await supabase.rpc('bulk_assign_folder_to_screen', {
         p_screen_id: selectedScreen,
         p_folder_id: currentFolder.id,
         p_duration_sec: formData.duration,
@@ -236,7 +235,7 @@ function AssignContent() {
 
   if (isLoading) return <div className="p-6">Loading...</div>;
 
-  // --- return statement (no change) ---
+  // ✅ --- THIS LINE IS UPDATED --- ✅
   return (
     <div className="p-6 bg-white text-gray-900 min-h-screen">
       {/* --- Header and Screen Selector (no change) --- */}
@@ -264,7 +263,7 @@ function AssignContent() {
         <div>
           <button
             onClick={() => setCurrentFolder(null)} 
-            className="mb-4 font-semibold text-white hover:underline"
+            className="mb-4 font-semibold text-blue-600 hover:underline"
           >
             &larr; Back to Library
           </button>
