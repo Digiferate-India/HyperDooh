@@ -230,16 +230,11 @@ function UploadMedia() {
       if (insertError) throw insertError;
       alert("File uploaded successfully!");
       setSelectedFile(null);
-
-      // --- ✅ ADDED THIS SECTION ---
-      // This resets the file input so the "Selected: ..." text disappears
-      // and you can re-upload the same file if you want.
+      
+      {/* We add this to clear the "No file chosen" text after upload */}
       document.getElementById("file-upload-root").value = null;
-      if (document.getElementById("file-upload-folder")) {
-        document.getElementById("file-upload-folder").value = null;
-      }
-      // --- END OF ADDED SECTION ---
-
+      document.getElementById("file-upload-folder").value = null;
+      
       fetchLibrary();
     } catch (error) {
       alert("Error: " + error.message);
@@ -331,7 +326,7 @@ function UploadMedia() {
       <div className="p-6 bg-white text-gray-900 min-h-screen">
         <button
           onClick={() => setCurrentFolder(null)}
-          className="mb-4 font-semibold text-white hover:underline"
+          className="mb-4 font-semibold text-white hover:underline" // Changed from text-blue-600
         >
           &larr; Back to Library
         </button>
@@ -346,34 +341,22 @@ function UploadMedia() {
         >
           <h3>Upload to "{currentFolder.name}"</h3>
 
-          {/* --- ✅ REPLACEMENT START --- */}
-          {/* This is our new visible button */}
-          <label
-            htmlFor="file-upload-folder"
-            style={{
-              backgroundColor: "#007bff",
-              color: "#fff",
-              marginTop: "19px",
-
-              padding: "8px 16px",
-              border: "none",
-              borderRadius: "6px",
-              cursor: "pointer",
-              display: "inline-block",
-            }}
+          {/* This <label> is what the user will see and click. */}
+          <label 
+            htmlFor="file-upload-folder" 
+            className="custom-file-upload-button"
           >
             Choose File
           </label>
-
-          {/* This is the hidden file picker */}
+          
+          {/* We add an id to the input and a className to hide it. */}
           <input
             id="file-upload-folder"
+            className="hidden-file-input"
             type="file"
             accept="image/*,video/*"
             onChange={handleFileChange}
-            style={{ display: "none" }}
           />
-          {/* --- ✅ REPLACEMENT END --- */}
 
           <button
             onClick={handleUpload}
@@ -386,7 +369,7 @@ function UploadMedia() {
               border: "none",
               borderRadius: "6px",
               cursor: "pointer",
-              marginLeft: "10px", // Keep this margin
+              marginLeft: "10px",
             }}
           >
             {isUploading ? "Uploading..." : "Upload"}
@@ -418,35 +401,24 @@ function UploadMedia() {
   return (
     <div className="p-6 bg-white text-gray-900 min-h-screen">
       <h1>Upload Media</h1>
-
-      {/* --- ✅ REPLACEMENT START --- */}
-      {/* This is our new visible button */}
-      <label
-        htmlFor="file-upload-root"
-        style={{
-          backgroundColor: "#007bff",
-          color: "#fff",
-          marginTop: "19px",
-          padding: "8px 16px",
-          border: "none",
-          borderRadius: "6px",
-          cursor: "pointer",
-          display: "inline-block",
-        }}
+      
+      {/* This <label> is what the user will see and click. */}
+      <label 
+        htmlFor="file-upload-root" 
+        className="custom-file-upload-button"
       >
         Choose File
       </label>
 
-      {/* This is the hidden file picker */}
+      {/* We add an id to the input and a className to hide it. */}
       <input
         id="file-upload-root"
+        className="hidden-file-input"
         type="file"
         accept="image/*,video/*"
         onChange={handleFileChange}
-        style={{ display: "none" }}
       />
-      {/* --- ✅ REPLACEMENT END --- */}
-
+      
       <button
         onClick={handleUpload}
         disabled={!selectedFile || isUploading}
@@ -457,7 +429,7 @@ function UploadMedia() {
           border: "none",
           borderRadius: "6px",
           cursor: "pointer",
-          marginLeft: "10px", // Added margin to separate buttons
+          marginLeft: "10px", // Added margin to separate from new button
         }}
       >
         {isUploading ? "Uploading..." : "Upload"}
