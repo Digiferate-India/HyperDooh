@@ -273,14 +273,14 @@ function PairScreen() {
                 <td style={{ padding: "8px" }}>
                   
                   {/* Only show "Unpair" if the screen is paired */}
-                  {/* {screen.status === 'paired' && (
+                  {screen.status === 'paired' && (
                     <button
                       onClick={() => handleUnpair(screen.id)}
                       style={{ color: "orange", marginRight: "10px" }}
                     >
                       Unpair
                     </button>
-                  )} */}
+                  )}
 
                   <button
                     onClick={() => handleDelete(screen.id)}

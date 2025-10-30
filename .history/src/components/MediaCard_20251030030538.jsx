@@ -3,26 +3,31 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient'; // Adjust path if needed
 
 function MediaCard({ mediaItem, screenId, initialAssignment, onAssignmentChange }) {
-  // --- State (no change) ---
+  // State for all assignable fields
   const [gender, setGender] = useState(initialAssignment?.gender || 'All');
   const [ageGroup, setAgeGroup] = useState(initialAssignment?.age_group || 'All');
   const [duration, setDuration] = useState(initialAssignment?.duration || '');
   const [scheduledTime, setScheduledTime] = useState(initialAssignment?.scheduled_time || '');
   const [orientation, setOrientation] = useState(initialAssignment?.orientation || 'any');
+  
+  // ✅ --- ADDED ---
+  // State to manage loading status for the save button
   const [isSaving, setIsSaving] = useState(false);
+  // State to track if the data has been saved at least once
   const [isAssigned, setIsAssigned] = useState(!!initialAssignment);
 
-  // --- useEffect (no change) ---
+  // This effect ensures the card's inputs reset when you select a different screen
   useEffect(() => {
     setGender(initialAssignment?.gender || 'All');
     setAgeGroup(initialAssignment?.age_group || 'All');
     setDuration(initialAssignment?.duration || '');
     setScheduledTime(initialAssignment?.scheduled_time || '');
     setOrientation(initialAssignment?.orientation || 'any');
-    setIsAssigned(!!initialAssignment);
+    setIsAssigned(!!initialAssignment); // Reset assigned status based on new prop
   }, [initialAssignment]);
 
-  // --- handleSave function (no change) ---
+  // ✅ --- NEW SAVE FUNCTION ---
+  // This function saves ALL settings at once
   const handleSave = async () => {
     if (!screenId) {
       alert('Please select a screen first.');
@@ -38,6 +43,7 @@ function MediaCard({ mediaItem, screenId, initialAssignment, onAssignmentChange 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("You must be logged in to make changes.");
 
+      // Bundle all the state variables into one object
       const updatedData = {
         screen_id: screenId,
         media_id: mediaItem.id,
@@ -49,6 +55,7 @@ function MediaCard({ mediaItem, screenId, initialAssignment, onAssignmentChange 
         orientation: orientation,
       };
 
+      // Use upsert to create or update the record
       const { data, error } = await supabase
         .from('screens_media')
         .upsert(updatedData, { onConflict: 'screen_id, media_id' })
@@ -57,10 +64,9 @@ function MediaCard({ mediaItem, screenId, initialAssignment, onAssignmentChange 
 
       if (error) throw error; 
 
-      onAssignmentChange(data); 
-      setIsAssigned(true); 
-      // We can remove the alert for a smoother flow
-      // alert('Assignment saved!'); 
+      onAssignmentChange(data); // Update the parent state
+      setIsAssigned(true); // Mark as assigned
+      alert('Assignment saved!');
 
     } catch (error) {
       alert(`Error saving assignment: ${error.message}`);
@@ -69,53 +75,27 @@ function MediaCard({ mediaItem, screenId, initialAssignment, onAssignmentChange 
     }
   };
 
-  // ✅ --- NEW UNASSIGN FUNCTION ---
-  const handleUnassign = async () => {
-    if (!screenId) {
-      alert('Please select a screen first.');
-      return;
-    }
-    if (!window.confirm("Are you sure you want to unassign this media?")) {
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      // 1. Delete the row from the database
-      const { error } = await supabase
-        .from('screens_media')
-        .delete()
-        .eq('screen_id', screenId)
-        .eq('media_id', mediaItem.id);
-
-      if (error) throw error;
-
-      // 2. Tell the parent to remove it from state
-      onAssignmentChange({ media_id: mediaItem.id, isUnassigned: true });
-
-      // 3. Reset the card's local state to defaults
-      setGender('All');
-      setAgeGroup('All');
-      setDuration('');
-      setScheduledTime('');
-      setOrientation('any');
-      setIsAssigned(false); // This is key
-      alert('Media unassigned.');
-
-    } catch (error) {
-      alert(`Error unassigning: ${error.message}`);
-    } finally {
-      setIsSaving(false);
-    }
+  // ✅ --- UPDATED Event Handlers ---
+  // All handlers now ONLY update local state
+  const handleGenderChange = (e) => {
+    setGender(e.target.value);
   };
 
+  const handleAgeChange = (e) => {
+    setAgeGroup(e.target.value);
+  };
 
-  // --- Event Handlers (no change) ---
-  const handleGenderChange = (e) => { setGender(e.target.value); };
-  const handleAgeChange = (e) => { setAgeGroup(e.target.value); };
-  const handleDurationChange = (e) => { setDuration(e.target.value); };
-  const handleTimeChange = (e) => { setScheduledTime(e.target.value); };
-  const handleOrientationChange = (e) => { setOrientation(e.target.value); };
+  const handleDurationChange = (e) => {
+    setDuration(e.target.value);
+  };
+
+  const handleTimeChange = (e) => {
+    setScheduledTime(e.target.value);
+  };
+
+  const handleOrientationChange = (e) => {
+    setOrientation(e.target.value);
+  };
 
   // --- Return/JSX (UPDATED) ---
   return (
@@ -124,7 +104,7 @@ function MediaCard({ mediaItem, screenId, initialAssignment, onAssignmentChange 
       <div className="p-4 flex-grow flex flex-col">
         <h3 className="font-semibold truncate mb-4" title={mediaItem.file_name}>{mediaItem.file_name}</h3>
         
-        {/* Form Inputs (no change) */}
+        {/* Form Inputs */}
         <div className="space-y-3 flex-grow">
           <div>
             <label className="text-sm text-gray-600 block">Duration (seconds)</label>
@@ -162,40 +142,23 @@ function MediaCard({ mediaItem, screenId, initialAssignment, onAssignmentChange 
           </div>
         </div>
         
-        {/* ✅ --- UPDATED BUTTONS SECTION --- */}
+        {/* ✅ --- ADDED SAVE BUTTON --- */}
         <div className="mt-4">
-          {!isAssigned ? (
-            // --- "ASSIGN" BUTTON (when not assigned) ---
-            <button
-              onClick={handleSave}
-              disabled={!screenId || isSaving}
-              className={`w-full px-4 py-2 rounded text-white font-semibold transition-colors ${
-                !screenId ? 'bg-gray-400 cursor-not-allowed' :
-                isSaving ? 'bg-gray-500' :
-                'bg-blue-600 hover:bg-blue-700'
-              }`}
-            >
-              {isSaving ? 'Saving...' : 'Assign'}
-            </button>
-          ) : (
-            // --- "UPDATE" & "UNASSIGN" BUTTONS (when assigned) ---
-            <div className="grid grid-cols-1 gap-3">
-              <button
-                onClick={handleSave}
-                disabled={isSaving}
-                className="w-full rounded text-white font-semibold transition-colors bg-green-600 hover:bg-green-700 disabled:bg-gray-400"
-              >
-                {isSaving ? 'Saving...' : 'Update'}
-              </button>
-              <button
-                onClick={handleUnassign} // <-- New function
-                disabled={isSaving}
-                className="w-full px-4 py-2 rounded text-white font-semibold transition-colors bg-red-600 hover:bg-red-700 disabled:bg-gray-400"
-              >
-                Unassign
-              </button>
-            </div>
-          )}
+          <button
+            onClick={handleSave}
+            disabled={!screenId || isSaving}
+            className={`w-full px-4 py-2 rounded text-white font-semibold transition-colors ${
+              !screenId 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : isSaving 
+                ? 'bg-gray-500' 
+                : isAssigned 
+                ? 'bg-green-600 hover:bg-green-700' 
+                : 'bg-blue-600 hover:bg-blue-700'
+            }`}
+          >
+            {isSaving ? 'Saving...' : (isAssigned ? 'Update' : 'Assign')}
+          </button>
           {!screenId && <p className="text-red-500 text-xs text-center mt-1">Select a screen first</p>}
         </div>
 

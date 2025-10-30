@@ -179,7 +179,7 @@ function MediaCard({ mediaItem, screenId, initialAssignment, onAssignmentChange 
             </button>
           ) : (
             // --- "UPDATE" & "UNASSIGN" BUTTONS (when assigned) ---
-            <div className="grid grid-cols-1 gap-3">
+            <div className="grid grid-cols-2 ml--1 gap-3">
               <button
                 onClick={handleSave}
                 disabled={isSaving}
@@ -192,7 +192,7 @@ function MediaCard({ mediaItem, screenId, initialAssignment, onAssignmentChange 
                 disabled={isSaving}
                 className="w-full px-4 py-2 rounded text-white font-semibold transition-colors bg-red-600 hover:bg-red-700 disabled:bg-gray-400"
               >
-                Unassign
+                Rem
               </button>
             </div>
           )}

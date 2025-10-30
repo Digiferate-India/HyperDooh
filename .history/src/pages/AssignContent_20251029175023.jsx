@@ -16,13 +16,16 @@ function FolderIcon() {
   );
 }
 
-// --- BulkAssignForm component (no change) ---
+// --- BulkAssignForm component (UPDATED) ---
 function BulkAssignForm({ folder, screenId, onClose, onSave }) {
   const [duration, setDuration] = useState(10); 
   const [scheduledTime, setScheduledTime] = useState(''); 
   const [gender, setGender] = useState('All');
   const [ageGroup, setAgeGroup] = useState('All');
+  
+  // ✅ --- ADDED ---
   const [orientation, setOrientation] = useState('any'); 
+  
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -35,6 +38,7 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
       scheduledTime: scheduledTime || null, 
       gender,
       ageGroup,
+      // ✅ --- ADDED ---
       orientation, 
     });
     
@@ -105,6 +109,7 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
             </select>
           </div>
           
+          {/* ✅ --- ADDED THIS BLOCK --- */}
           <div className="mb-4">
             <label className="block font-semibold mb-1">Orientation:</label>
             <select 
@@ -189,6 +194,7 @@ function AssignContent() {
     }
     async function fetchAssignments() {
       setIsFetchingAssignments(true);
+      // ✅ --- UPDATED to select the new orientation column ---
       const { data, error } = await supabase
         .from('screens_media')
         .select('*')
@@ -205,24 +211,16 @@ function AssignContent() {
     fetchAssignments();
   }, [selectedScreen]);
 
-  // ✅ --- handleAssignmentChange (UPDATED) ---
-  const handleAssignmentChange = (assignmentUpdate) => {
+  // --- handleAssignmentChange (no change) ---
+  const handleAssignmentChange = (updatedAssignment) => {
     setAssignments(prevMap => {
       const newMap = new Map(prevMap);
-      
-      if (assignmentUpdate.isUnassigned) {
-        // If the 'isUnassigned' flag is present, delete it from the map
-        newMap.delete(assignmentUpdate.media_id);
-      } else {
-        // Otherwise, it's a normal update/create
-        newMap.set(assignmentUpdate.media_id, assignmentUpdate);
-      }
-      
+      newMap.set(updatedAssignment.media_id, updatedAssignment);
       return newMap;
     });
   };
   
-  // --- handleBulkAssignSave (no change) ---
+  // ✅ --- handleBulkAssignSave (UPDATED) ---
   const handleBulkAssignSave = async (formData) => {
     if (!selectedScreen || !currentFolder) {
       alert("Please select a screen and a folder first.");
@@ -237,6 +235,7 @@ function AssignContent() {
         p_scheduled_time: formData.scheduledTime,
         p_gender_text: formData.gender,
         p_age_group_text: formData.ageGroup,
+        // ✅ --- ADDED ---
         p_orientation_text: formData.orientation 
       });
       

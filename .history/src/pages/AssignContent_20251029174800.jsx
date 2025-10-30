@@ -22,7 +22,6 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
   const [scheduledTime, setScheduledTime] = useState(''); 
   const [gender, setGender] = useState('All');
   const [ageGroup, setAgeGroup] = useState('All');
-  const [orientation, setOrientation] = useState('any'); 
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -35,7 +34,6 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
       scheduledTime: scheduledTime || null, 
       gender,
       ageGroup,
-      orientation, 
     });
     
     setIsSaving(false);
@@ -47,7 +45,6 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
         position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         display: 'flex', justifyContent: 'center', alignItems: 'center',
-        zIndex: 50, // Ensure it's on top
       }}
     >
       <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md text-gray-900">
@@ -102,19 +99,6 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
               <option value="18-25">18-25</option>
               <option value="26-40">26-40</option>
               <option value="41+">41+</option>
-            </select>
-          </div>
-          
-          <div className="mb-4">
-            <label className="block font-semibold mb-1">Orientation:</label>
-            <select 
-              value={orientation} 
-              onChange={(e) => setOrientation(e.target.value)} 
-              className="w-full border p-2 rounded-lg text-black" 
-            >
-              <option value="any">Any (Default)</option>
-              <option value="landscape">Landscape</option>
-              <option value="portrait">Portrait</option>
             </select>
           </div>
           
@@ -189,11 +173,7 @@ function AssignContent() {
     }
     async function fetchAssignments() {
       setIsFetchingAssignments(true);
-      const { data, error } = await supabase
-        .from('screens_media')
-        .select('*')
-        .eq('screen_id', selectedScreen);
-        
+      const { data, error } = await supabase.from('screens_media').select('*').eq('screen_id', selectedScreen);
       if (error) {
         alert('Error fetching assignments: ' + error.message);
       } else {
@@ -205,24 +185,16 @@ function AssignContent() {
     fetchAssignments();
   }, [selectedScreen]);
 
-  // ✅ --- handleAssignmentChange (UPDATED) ---
-  const handleAssignmentChange = (assignmentUpdate) => {
+  // --- handleAssignmentChange (no change) ---
+  const handleAssignmentChange = (updatedAssignment) => {
     setAssignments(prevMap => {
       const newMap = new Map(prevMap);
-      
-      if (assignmentUpdate.isUnassigned) {
-        // If the 'isUnassigned' flag is present, delete it from the map
-        newMap.delete(assignmentUpdate.media_id);
-      } else {
-        // Otherwise, it's a normal update/create
-        newMap.set(assignmentUpdate.media_id, assignmentUpdate);
-      }
-      
+      newMap.set(updatedAssignment.media_id, updatedAssignment);
       return newMap;
     });
   };
   
-  // --- handleBulkAssignSave (no change) ---
+  // ✅ --- handleBulkAssignSave (UPDATED) ---
   const handleBulkAssignSave = async (formData) => {
     if (!selectedScreen || !currentFolder) {
       alert("Please select a screen and a folder first.");
@@ -230,14 +202,14 @@ function AssignContent() {
     }
     
     try {
+      // ✅ --- THIS LINE IS UPDATED --- ✅
       const { error } = await supabase.rpc('bulk_assign_folder_v2', {
         p_screen_id: selectedScreen,
         p_folder_id: currentFolder.id,
         p_duration_sec: formData.duration,
         p_scheduled_time: formData.scheduledTime,
         p_gender_text: formData.gender,
-        p_age_group_text: formData.ageGroup,
-        p_orientation_text: formData.orientation 
+        p_age_group_text: formData.ageGroup
       });
       
       if (error) throw error;
@@ -245,12 +217,7 @@ function AssignContent() {
       alert(`Success! All media in "${currentFolder.name}" has been assigned.`);
       setIsBulkModalOpen(false); 
       
-      // Refetch assignments for this screen
-      const { data, error: fetchError } = await supabase
-        .from('screens_media')
-        .select('*')
-        .eq('screen_id', selectedScreen);
-        
+      const { data, error: fetchError } = await supabase.from('screens_media').select('*').eq('screen_id', selectedScreen);
       if (fetchError) throw fetchError;
       
       const assignmentsMap = new Map(data.map(item => [item.media_id, item]));
@@ -297,7 +264,7 @@ function AssignContent() {
         <div>
           <button
             onClick={() => setCurrentFolder(null)} 
-            className="mb-4 font-semibold text-blue-600 hover:underline" // Made text blue to be clickable
+            className="mb-4 font-semibold text-white hover:underline"
           >
             &larr; Back to Library
           </button>
