@@ -47,7 +47,7 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
         position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         display: 'flex', justifyContent: 'center', alignItems: 'center',
-        zIndex: 50,
+        zIndex: 50, // Ensure it's on top
       }}
     >
       <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md text-gray-900">
@@ -57,7 +57,6 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
         <p className="mb-4">These settings will apply to all media items in this folder for the selected screen.</p>
         
         <form onSubmit={handleSubmit}>
-          {/* ... all form inputs ... */}
           <div className="mb-4">
             <label className="block font-semibold mb-1">Duration (seconds):</label>
             <input
@@ -68,6 +67,7 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
               required
             />
           </div>
+          
           <div className="mb-4">
             <label className="block font-semibold mb-1">Scheduled Time (Optional):</label>
             <input
@@ -77,6 +77,7 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
               className="w-full border p-2 rounded-lg text-black" 
             />
           </div>
+
           <div className="mb-4">
             <label className="block font-semibold mb-1">Gender:</label>
             <select 
@@ -89,6 +90,7 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
               <option value="Female">Female</option>
             </select>
           </div>
+
           <div className="mb-4">
             <label className="block font-semibold mb-1">Age Group:</label>
             <select 
@@ -102,6 +104,7 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
               <option value="41+">41+</option>
             </select>
           </div>
+          
           <div className="mb-4">
             <label className="block font-semibold mb-1">Orientation:</label>
             <select 
@@ -152,7 +155,7 @@ function AssignContent() {
   
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
 
-  // --- Effect to fetch data (UPDATED) ---
+  // --- Effect to fetch data (no change) ---
   useEffect(() => {
     async function fetchData() {
       try {
@@ -160,9 +163,7 @@ function AssignContent() {
         if (screensError) throw screensError;
         setScreens(screensData || []);
 
-        // ✅ --- THIS IS THE FIX ---
-        // We must select the thumbnail_path here
-        const { data: mediaData, error: mediaError } = await supabase.from('media').select('*, thumbnail_path');
+        const { data: mediaData, error: mediaError } = await supabase.from('media').select('*');
         if (mediaError) throw mediaError;
         setAllMedia(mediaData || []);
         
@@ -204,14 +205,16 @@ function AssignContent() {
     fetchAssignments();
   }, [selectedScreen]);
 
-  // --- handleAssignmentChange (no change) ---
+  // ✅ --- handleAssignmentChange (UPDATED) ---
   const handleAssignmentChange = (assignmentUpdate) => {
     setAssignments(prevMap => {
       const newMap = new Map(prevMap);
       
       if (assignmentUpdate.isUnassigned) {
+        // If the 'isUnassigned' flag is present, delete it from the map
         newMap.delete(assignmentUpdate.media_id);
       } else {
+        // Otherwise, it's a normal update/create
         newMap.set(assignmentUpdate.media_id, assignmentUpdate);
       }
       
@@ -242,6 +245,7 @@ function AssignContent() {
       alert(`Success! All media in "${currentFolder.name}" has been assigned.`);
       setIsBulkModalOpen(false); 
       
+      // Refetch assignments for this screen
       const { data, error: fetchError } = await supabase
         .from('screens_media')
         .select('*')
@@ -286,13 +290,14 @@ function AssignContent() {
         </select>
       </div>
 
-      {/* --- CONDITIONAL RENDERING (no change) --- */}
+      {/* --- CONDITIONAL RENDERING --- */}
       
+      {/* VIEW 1: We are inside a folder (no change) */}
       {currentFolder ? (
         <div>
           <button
             onClick={() => setCurrentFolder(null)} 
-            className="mb-4 font-semibold text-blue-600 hover:underline"
+            className="mb-4 font-semibold text-blue-600 hover:underline" // Made text blue to be clickable
           >
             &larr; Back to Library
           </button>
@@ -323,6 +328,7 @@ function AssignContent() {
       
       ) : (
 
+        /* VIEW 2: We are at the root (no change) */
         <div>
           <h2 className="text-xl font-bold mb-4">Folders</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-8">
