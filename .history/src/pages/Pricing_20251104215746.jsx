@@ -21,7 +21,7 @@ const tiers = [
     price: "Rs. 6000",
     description: "Everything you need to run small networks.",
     features: [
-      "LCD Device Plan",
+            "LCD Device Plan",
       "Content Looping and Scheduling",
       "8 GB file storage/100 GiB memory transfer",
       "Support within 48 hours",
@@ -36,7 +36,7 @@ const tiers = [
     price: "Rs. 10,000",
     description: "For larger deployments and teams.",
     features: [
-      "LED Device Plan",
+            "LED Device Plan",
       "Content Looping and Scheduling",
       "30 GB file storage/100 GiB memory transfer",
       "Support within 48 hours",
@@ -51,7 +51,7 @@ const tiers = [
     price: "Rs. 6000",
     description: "For larger deployments and teams.",
     features: [
-      "LCD Device Plan",
+            "LCD Device Plan",
       "Content Looping and Scheduling",
       "30 GB file storage/100 GiB memory transfer",
       "Support within 48 hours",
@@ -68,7 +68,6 @@ const tiers = [
     price: "Rs. 8,000",
     description: "For larger deployments and teams.",
     features: [
-      "LCD Device Plan",
       "Content Looping and Scheduling",
       "30 GB file storage/100 GiB memory transfer",
       "Support within 48 hours",
@@ -85,7 +84,6 @@ const tiers = [
     price: "Rs. 14,000",
     description: "For larger deployments and teams.",
     features: [
-      "LED Device Plan",
       "Content Looping and Scheduling",
       "30 GB file storage/100 GiB memory transfer",
       "Support within 48 hours",
@@ -104,9 +102,7 @@ export default function Pricing() {
     <div className="relative isolate bg-gray-950 text-white">
       <div className="mx-auto max-w-7xl px-6 lg:px-8 pt-28 pb-16">
         <div className="mx-auto max-w-2xl text-center">
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-            Simple, transparent pricing
-          </h1>
+          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Simple, transparent pricing</h1>
           <p className="mt-6 text-lg text-gray-300">
             Choose a plan that scales with your digital signage network.
           </p>
@@ -127,16 +123,8 @@ export default function Pricing() {
               <ul className="mt-6 space-y-3 text-sm text-gray-200">
                 {tier.features.map((f) => (
                   <li key={f} className="flex items-start gap-3">
-                    <svg
-                      className="h-5 w-5 text-emerald-400 flex-none"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-7.25 7.25a1 1 0 01-1.414 0l-3-3a1 1 0 111.414-1.414l2.293 2.293 6.543-6.543a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
+                    <svg className="h-5 w-5 text-emerald-400 flex-none" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.25 7.25a1 1 0 01-1.414 0l-3-3a1 1 0 111.414-1.414l2.293 2.293 6.543-6.543a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                     <span>{f}</span>
                   </li>
@@ -161,39 +149,23 @@ export default function Pricing() {
 
         <div className="mx-auto max-w-3xl mt-16">
           <div className="rounded-xl border border-white/10 bg-white/5 p-6">
-            <h2 className="text-lg font-semibold">
-              Frequently asked questions
-            </h2>
+            <h2 className="text-lg font-semibold">Frequently asked questions</h2>
             <dl className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 text-sm text-gray-200">
               <div>
-                <dt className="font-medium text-white">
-                  Can I change plans later?
-                </dt>
-                <dd className="mt-2">
-                  Yes, you can upgrade or downgrade any time.
-                </dd>
+                <dt className="font-medium text-white">Can I change plans later?</dt>
+                <dd className="mt-2">Yes, you can upgrade or downgrade any time.</dd>
               </div>
               <div>
-                <dt className="font-medium text-white">
-                  Is there a free trial?
-                </dt>
-                <dd className="mt-2">
-                  Talk to Sales. No credit card required.
-                </dd>
+                <dt className="font-medium text-white">Is there a free trial?</dt>
+                <dd className="mt-2">Talk to Sales. No credit card required.</dd>
               </div>
               <div>
-                <dt className="font-medium text-white">
-                  Do you offer whitelabeling with Custom Features?
-                </dt>
+                <dt className="font-medium text-white">Do you offer whitelabeling with Custom Features?</dt>
                 <dd className="mt-2">Talk to Sales.</dd>
               </div>
               <div>
-                <dt className="font-medium text-white">
-                  What payment methods are supported?
-                </dt>
-                <dd className="mt-2">
-                  All major cards are accepted. Invoices for Business plans.
-                </dd>
+                <dt className="font-medium text-white">What payment methods are supported?</dt>
+                <dd className="mt-2">All major cards are accepted. Invoices for Business plans.</dd>
               </div>
             </dl>
           </div>
@@ -202,3 +174,5 @@ export default function Pricing() {
     </div>
   );
 }
+
+
