@@ -43,7 +43,7 @@ const Navbar = () => {
             <Link to="/" className="text-sm font-semibold leading-6 text-white hover:text-gray-300">
               Home
             </Link>
-            <Link to="/" className="text-sm font-semibold leading-6 text-white hover:text-gray-300">
+            <Link to="/pricing" className="text-sm font-semibold leading-6 text-white hover:text-gray-300">
               Pricing
             </Link>
             <Link to="/" className="text-sm font-semibold leading-6 text-white hover:text-gray-300">
@@ -106,7 +106,7 @@ const Navbar = () => {
                     <Link to="/" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">
                       Home
                     </Link>
-                    <Link to="/" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">
+                    <Link to="/pricing" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">
                       Pricing
                     </Link>
                     <Link to="/" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">
