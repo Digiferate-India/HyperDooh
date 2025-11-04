@@ -153,11 +153,11 @@ export default function Pricing() {
               </div>
               <div>
                 <dt className="font-medium text-white">Is there a free trial?</dt>
-                <dd className="mt-2">The Starter plan is free to use. No credit card required.</dd>
+                <dd className="mt-2">Talk to Sales. No credit card required.</dd>
               </div>
               <div>
-                <dt className="font-medium text-white">Do you offer discounts?</dt>
-                <dd className="mt-2">Annual billing and volume discounts are available.</dd>
+                <dt className="font-medium text-white">Do you offer whitelabeling with Custom Features?</dt>
+                <dd className="mt-2">Talk to Sales.</dd>
               </div>
               <div>
                 <dt className="font-medium text-white">What payment methods are supported?</dt>
