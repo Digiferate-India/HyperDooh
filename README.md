@@ -204,17 +204,6 @@ If the build fails:
 2. Clear Vite cache: `rm -rf node_modules/.vite`
 3. Check for TypeScript/ESLint errors: `npm run lint`
 
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 👥 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 🤝 Support
-
-For support, email support@hyperdooh.com or join our Discord community.
 
 ## 🙏 Acknowledgments
 
@@ -226,5 +215,3 @@ For support, email support@hyperdooh.com or join our Discord community.
 - [GSAP](https://greensock.com/gsap/)
 
 ---
-
-Built with ❤️ by the HyperDooh team
