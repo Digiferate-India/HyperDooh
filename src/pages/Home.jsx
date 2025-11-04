@@ -483,7 +483,7 @@ export default function App() {
             </div>
             <div className="mt-16 grid grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:grid-cols-3">
               {/* Plan 1 */}
-              <div className="relative bg-white/5 p-8 rounded-3xl shadow-xl ring-2 ring-indigo-500">
+              <div className="relative bg-white/5 p-8 rounded-3xl shadow-xl ring-2">
                 <h3 className="text-base font-semibold leading-7 text-indigo-400">
                   Professional
                 </h3>
