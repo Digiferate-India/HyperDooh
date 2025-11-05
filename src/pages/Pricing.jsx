@@ -112,6 +112,7 @@ export default function Pricing() {
           </p>
         </div>
 
+
         <div className="mx-auto mt-12 grid max-w-md grid-cols-1 gap-8 sm:mt-16 lg:max-w-none lg:grid-cols-3">
           {tiers.map((tier) => (
             <div
@@ -196,6 +197,23 @@ export default function Pricing() {
                 </dd>
               </div>
             </dl>
+          </div>
+        </div>
+      </div>
+      {/* Contact details at bottom */}
+      <div className="px-6 lg:px-8 pb-12">
+        <div className="mx-auto max-w-3xl text-center">
+          <div className="rounded-xl border border-white/10 bg-white/5 p-6">
+            <p className="text-sm text-gray-300">Questions? Contact us</p>
+            <div className="mt-2 flex flex-col sm:flex-row items-center justify-center gap-3 text-sm">
+              <a href="mailto:info@digiferate.in" className="text-white hover:text-gray-200 underline underline-offset-4">
+                info@digiferate.in
+              </a>
+              <span className="hidden sm:inline text-gray-500">|</span>
+              <a href="tel:+917795807079" className="text-white hover:text-gray-200 underline underline-offset-4">
+                +91 77958 07079
+              </a>
+            </div>
           </div>
         </div>
       </div>
