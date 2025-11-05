@@ -7,11 +7,16 @@ function ScreenStatusCard({ screen }) {
 
   // The rest of the playlist
   const upNext = screen.playlist && screen.playlist.length > 1 ? screen.playlist.slice(1) : [];
+  
+  // Prefer custom name, otherwise fall back to a readable default using the id
+  const screenTitle = (screen.custom_name && screen.custom_name.trim())
+    ? screen.custom_name.trim()
+    : `Screen ${screen.id}`;
 
   return (
     <div className="bg-white p-4 rounded-lg shadow">
       {/* Screen Title */}
-      <h3 className="text-lg font-bold mb-3 border-b pb-2">{screen.custom_name}</h3>
+      <h3 className="text-lg font-bold mb-3 border-b pb-2 text-black">{screenTitle}</h3>
       
       {/* Currently Playing Section */}
       {currentlyPlaying ? (
