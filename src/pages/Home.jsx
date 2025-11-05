@@ -370,7 +370,7 @@ export default function App() {
           <div className="max-w-7xl mx-auto">
             <div className="relative aspect-video rounded-xl shadow-2xl overflow-hidden">
               <iframe
-                src="https://www.youtube.com/embed/bhFKnRNxeRU?si=7nPsPLxy2EjDz0bF"
+                src="https://www.youtube.com/embed/4roY6uflyls?si=MpVC7c1ymtzvKHoA"
                 title="YouTube video player"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

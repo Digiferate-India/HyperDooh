@@ -251,7 +251,7 @@ export default function App() {
   return (
     <div
       ref={main}
-      className="bg-[#ffffff] min-h-[30vh] w-screen font-sans text-white overflow-x-hidden"
+      className="bg-[#ffffff] min-h-[30vh] w-full font-sans text-white"
     >
       {/* --- GRADIENT & BLACK SECTION START --- */}
       <div className="relative isolate bg-black text-white">
@@ -370,7 +370,7 @@ export default function App() {
           <div className="max-w-7xl mx-auto">
             <div className="relative aspect-video rounded-xl shadow-2xl overflow-hidden">
               <iframe
-                src="https://www.youtube.com/embed/bhFKnRNxeRU?si=7nPsPLxy2EjDz0bF"
+                src="https://www.youtube.com/embed/4roY6uflyls?si=MpVC7c1ymtzvKHoA"
                 title="YouTube video player"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -467,14 +467,14 @@ export default function App() {
       </div>
 
       {/* Pricing Section */}
-      <div className="py-24 sm:py-32">
+      {/* <div className="py-24 sm:py-32">
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
             <div className="text-center">
               <span className="bg-white/10 text-black text-xs font-medium px-2.5 py-1 rounded-full">
                 PRICING
-              </span>
-              <h2 className="mt-4 text-3xl font-bold tracking-tight text-indigo-400 sm:text-4xl">
+              </span> */}
+              {/* <h2 className="mt-4 text-3xl font-bold tracking-tight text-indigo-400 sm:text-4xl">
                 The right price for you, whoever you are
               </h2>
               <p className="mt-6 text-lg leading-8 text-black">
@@ -483,11 +483,11 @@ export default function App() {
             </div>
             <div className="mt-16 grid grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:grid-cols-3">
               {/* Plan 1 */}
-              <div className="relative bg-white/5 p-8 rounded-3xl shadow-xl ring-2 ring-indigo-500">
+              {/* <div className="relative bg-white/5 p-8 rounded-3xl shadow-xl ring-2">
                 <h3 className="text-base font-semibold leading-7 text-indigo-400">
                   Professional
-                </h3>
-                <p className="mt-4 flex items-baseline gap-x-2">
+                </h3>  */}
+                {/* <p className="mt-4 flex items-baseline gap-x-2">
                   <span className="text-5xl font-bold tracking-tight text-indigo-400">
                     $99
                   </span>
@@ -519,10 +519,10 @@ export default function App() {
                 >
                   Choose plan
                 </a>
-              </div>
+              </div> */}
 
               {/* Plan 2 */}
-              <div className="relative bg-white/5 p-8 sm:mx-8 lg:mx-0 rounded-3xl shadow-xl ring-1 ring-white/10">
+              {/* <div className="relative bg-white/5 p-8 sm:mx-8 lg:mx-0 rounded-3xl shadow-xl ring-1 ring-white/10">
                 <h3 className="text-base font-semibold leading-7 text-black">
                   Business
                 </h3>
@@ -558,10 +558,10 @@ export default function App() {
                 >
                   Choose plan
                 </a>
-              </div>
+              </div> */}
 
               {/* Plan 3 */}
-              <div className="relative bg-white/5 p-8 rounded-3xl shadow-xl ring-1 ring-white/10">
+              {/* <div className="relative bg-white/5 p-8 rounded-3xl shadow-xl ring-1 ring-white/10">
                 <h3 className="text-base font-semibold leading-7 text-black">
                   Enterprise
                 </h3>
@@ -597,12 +597,12 @@ export default function App() {
                 >
                   Choose plan
                 </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+              </div> */}
+            {/* </div> */}
+          {/* </div> */}
+        {/* </div> */}
+      {/* </div> */}
+      
       {/* Community Section */}
       <div id="community-section" className="text-center py-16">
         <div className="px-4 sm:px-6 lg:px-8">
