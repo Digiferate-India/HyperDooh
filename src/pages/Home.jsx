@@ -285,7 +285,7 @@ export default function App() {
                 className="mt-10 flex items-center justify-center gap-x-6"
               >
                 <a
-                  href="#"
+                  href="https://digiferate.setmore.com/"
                   className="mt-5 mb-4 text-white rounded-md bg-amber-50 px-4 py-3 text-sm font-semibold shadow-sm"
                 >
                   Book a Demo
@@ -755,7 +755,7 @@ export default function App() {
                   <ul role="list" className="mt-6 space-y-4">
                     <li>
                       <a
-                        href="#"
+                        href="/terms-and-conditions"
                         className="text-sm leading-6 text-black hover:text-white"
                       >
                         Terms of Service
@@ -763,7 +763,7 @@ export default function App() {
                     </li>
                     <li>
                       <a
-                        href="#"
+                        href="/privacy-policy"
                         className="text-sm leading-6 text-black hover:text-white"
                       >
                         Privacy Policy
@@ -771,7 +771,7 @@ export default function App() {
                     </li>
                     <li>
                       <a
-                        href="#"
+                        href="/cookie-policy"
                         className="text-sm leading-6 text-black hover:text-white"
                       >
                         Cookies
@@ -779,7 +779,7 @@ export default function App() {
                     </li>
                     <li>
                       <a
-                        href="#"
+                        href="/license"
                         className="text-sm leading-6 text-black hover:text-white"
                       >
                         Licenses
