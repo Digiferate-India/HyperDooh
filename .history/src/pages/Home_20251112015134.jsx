@@ -698,14 +698,14 @@ export default function App() {
                         Photos
                       </a>
                     </li> */}
-                    {/* <li>
+                    <li>
                       <a
                         href="#"
                         className="text-sm leading-6 text-black hover:text-white"
                       >
                         Download
                       </a>
-                    </li> */}
+                    </li>
                   </ul>
                 </div>
                 {/* <div>

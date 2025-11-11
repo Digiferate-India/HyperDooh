@@ -660,52 +660,52 @@ export default function App() {
                   <ul role="list" className="mt-6 space-y-4">
                     <li>
                       <a
-                        href="mailto:digiferate@gmail.com"
+                        href="mailto:someone@example.com"
                         className="text-sm leading-6 text-black hover:text-black"
                       >
                         Mail
                       </a>
                     </li>
-                    {/* <li>
+                    <li>
                       <a
                         href="#"
                         className="text-sm leading-6 text-black hover:text-white"
                       >
                         Drive
                       </a>
-                    </li> */}
+                    </li>
                     <li>
                       <a
-                        href="https://chat.whatsapp.com/CDtJlWE7Y7BCVAV6P02bFS?mode=wwt"
+                        href="#"
                         className="text-sm leading-6 text-black hover:text-white"
                       >
                         Chat
                       </a>
                     </li>
-                    {/* <li>
+                    <li>
                       <a
                         href="#"
                         className="text-sm leading-6 text-black hover:text-white"
                       >
                         Calendar
                       </a>
-                    </li> */}
-                    {/* <li>
+                    </li>
+                    <li>
                       <a
                         href="#"
                         className="text-sm leading-6 text-black hover:text-white"
                       >
                         Photos
                       </a>
-                    </li> */}
-                    {/* <li>
+                    </li>
+                    <li>
                       <a
                         href="#"
                         className="text-sm leading-6 text-black hover:text-white"
                       >
                         Download
                       </a>
-                    </li> */}
+                    </li>
                   </ul>
                 </div>
                 {/* <div>

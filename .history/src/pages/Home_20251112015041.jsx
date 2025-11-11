@@ -676,36 +676,36 @@ export default function App() {
                     </li> */}
                     <li>
                       <a
-                        href="https://chat.whatsapp.com/CDtJlWE7Y7BCVAV6P02bFS?mode=wwt"
+                        href="#"
                         className="text-sm leading-6 text-black hover:text-white"
                       >
                         Chat
                       </a>
                     </li>
-                    {/* <li>
+                    <li>
                       <a
                         href="#"
                         className="text-sm leading-6 text-black hover:text-white"
                       >
                         Calendar
                       </a>
-                    </li> */}
-                    {/* <li>
+                    </li>
+                    <li>
                       <a
                         href="#"
                         className="text-sm leading-6 text-black hover:text-white"
                       >
                         Photos
                       </a>
-                    </li> */}
-                    {/* <li>
+                    </li>
+                    <li>
                       <a
                         href="#"
                         className="text-sm leading-6 text-black hover:text-white"
                       >
                         Download
                       </a>
-                    </li> */}
+                    </li>
                   </ul>
                 </div>
                 {/* <div>

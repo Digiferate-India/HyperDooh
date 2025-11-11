@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { HeroCarousel } from "../components/HeroCarousel";
+import { HeroCarousel } from '../components/HeroCarousel';
 
 // --- Register GSAP Plugin ---
 gsap.registerPlugin(ScrollTrigger);
@@ -269,6 +269,7 @@ export default function App() {
           />
         </div>
 
+       
         <main className="relative pt-24 sm:pt-32">
           <div className="mt-19 px-4 sm:px-6 lg:px-8">
             <div className="mt-8 max-w-7xl mx-auto text-center">
@@ -293,7 +294,7 @@ export default function App() {
             </div>
             <div id="hero-image" className="mt-16 flow-root sm:mt-24">
               <div className="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4">
-                <HeroCarousel />
+               <HeroCarousel />
               </div>
             </div>
           </div>
@@ -473,7 +474,7 @@ export default function App() {
               <span className="bg-white/10 text-black text-xs font-medium px-2.5 py-1 rounded-full">
                 PRICING
               </span> */}
-      {/* <h2 className="mt-4 text-3xl font-bold tracking-tight text-indigo-400 sm:text-4xl">
+              {/* <h2 className="mt-4 text-3xl font-bold tracking-tight text-indigo-400 sm:text-4xl">
                 The right price for you, whoever you are
               </h2>
               <p className="mt-6 text-lg leading-8 text-black">
@@ -482,11 +483,11 @@ export default function App() {
             </div>
             <div className="mt-16 grid grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:grid-cols-3">
               {/* Plan 1 */}
-      {/* <div className="relative bg-white/5 p-8 rounded-3xl shadow-xl ring-2">
+              {/* <div className="relative bg-white/5 p-8 rounded-3xl shadow-xl ring-2">
                 <h3 className="text-base font-semibold leading-7 text-indigo-400">
                   Professional
                 </h3>  */}
-      {/* <p className="mt-4 flex items-baseline gap-x-2">
+                {/* <p className="mt-4 flex items-baseline gap-x-2">
                   <span className="text-5xl font-bold tracking-tight text-indigo-400">
                     $99
                   </span>
@@ -520,8 +521,8 @@ export default function App() {
                 </a>
               </div> */}
 
-      {/* Plan 2 */}
-      {/* <div className="relative bg-white/5 p-8 sm:mx-8 lg:mx-0 rounded-3xl shadow-xl ring-1 ring-white/10">
+              {/* Plan 2 */}
+              {/* <div className="relative bg-white/5 p-8 sm:mx-8 lg:mx-0 rounded-3xl shadow-xl ring-1 ring-white/10">
                 <h3 className="text-base font-semibold leading-7 text-black">
                   Business
                 </h3>
@@ -559,8 +560,8 @@ export default function App() {
                 </a>
               </div> */}
 
-      {/* Plan 3 */}
-      {/* <div className="relative bg-white/5 p-8 rounded-3xl shadow-xl ring-1 ring-white/10">
+              {/* Plan 3 */}
+              {/* <div className="relative bg-white/5 p-8 rounded-3xl shadow-xl ring-1 ring-white/10">
                 <h3 className="text-base font-semibold leading-7 text-black">
                   Enterprise
                 </h3>
@@ -597,11 +598,11 @@ export default function App() {
                   Choose plan
                 </a>
               </div> */}
+            {/* </div> */}
+          {/* </div> */}
+        {/* </div> */}
       {/* </div> */}
-      {/* </div> */}
-      {/* </div> */}
-      {/* </div> */}
-
+      
       {/* Community Section */}
       <div id="community-section" className="text-center py-16">
         <div className="px-4 sm:px-6 lg:px-8">
@@ -660,52 +661,53 @@ export default function App() {
                   <ul role="list" className="mt-6 space-y-4">
                     <li>
                       <a
-                        href="mailto:digiferate@gmail.com"
-                        className="text-sm leading-6 text-black hover:text-black"
-                      >
-                        Mail
-                      </a>
+  href="mailto:someone@example.com"
+  className="text-sm leading-6 text-black hover:text-black"
+>
+  Mail
+</a>
+
                     </li>
-                    {/* <li>
+                    <li>
                       <a
                         href="#"
                         className="text-sm leading-6 text-black hover:text-white"
                       >
                         Drive
                       </a>
-                    </li> */}
+                    </li>
                     <li>
                       <a
-                        href="https://chat.whatsapp.com/CDtJlWE7Y7BCVAV6P02bFS?mode=wwt"
+                        href="#"
                         className="text-sm leading-6 text-black hover:text-white"
                       >
                         Chat
                       </a>
                     </li>
-                    {/* <li>
+                    <li>
                       <a
                         href="#"
                         className="text-sm leading-6 text-black hover:text-white"
                       >
                         Calendar
                       </a>
-                    </li> */}
-                    {/* <li>
+                    </li>
+                    <li>
                       <a
                         href="#"
                         className="text-sm leading-6 text-black hover:text-white"
                       >
                         Photos
                       </a>
-                    </li> */}
-                    {/* <li>
+                    </li>
+                    <li>
                       <a
                         href="#"
                         className="text-sm leading-6 text-black hover:text-white"
                       >
                         Download
                       </a>
-                    </li> */}
+                    </li>
                   </ul>
                 </div>
                 {/* <div>
