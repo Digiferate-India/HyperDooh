@@ -16,7 +16,7 @@ function FolderIcon() {
   );
 }
 
-// --- BulkAssignForm component (no change) ---
+// --- BulkAssignForm component (UPDATED) ---
 function BulkAssignForm({ folder, screenId, onClose, onSave }) {
   const [duration, setDuration] = useState(10); 
   const [scheduledTime, setScheduledTime] = useState(''); 
@@ -32,6 +32,8 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
     
     await onSave({
       duration,
+      // The 'datetime-local' input provides a string like '2025-11-16T12:30'
+      // This is a valid timestamp format for PostgreSQL.
       scheduledTime: scheduledTime || null, 
       gender,
       ageGroup,
@@ -69,13 +71,15 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
             />
           </div>
           <div className="mb-4">
-            <label className="block font-semibold mb-1">Scheduled Time (Optional):</label>
+            <label className="block font-semibold mb-1">Scheduled Date & Time (Optional):</label>
+            {/* ✅ --- THIS IS THE CHANGE --- */}
             <input
-              type="time"
+              type="datetime-local"
               value={scheduledTime}
               onChange={(e) => setScheduledTime(e.target.value)}
               className="w-full border p-2 rounded-lg text-black" 
             />
+            {/* ✅ --- END OF CHANGE --- */}
           </div>
           <div className="mb-4">
             <label className="block font-semibold mb-1">Gender:</label>
@@ -152,7 +156,7 @@ function AssignContent() {
   
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
 
-  // --- Effect to fetch data (UPDATED) ---
+  // --- Effect to fetch data (no change) ---
   useEffect(() => {
     async function fetchData() {
       try {
@@ -160,8 +164,6 @@ function AssignContent() {
         if (screensError) throw screensError;
         setScreens(screensData || []);
 
-        // ✅ --- THIS IS THE FIX ---
-        // We must select the thumbnail_path here
         const { data: mediaData, error: mediaError } = await supabase.from('media').select('*, thumbnail_path');
         if (mediaError) throw mediaError;
         setAllMedia(mediaData || []);
@@ -231,7 +233,7 @@ function AssignContent() {
         p_screen_id: selectedScreen,
         p_folder_id: currentFolder.id,
         p_duration_sec: formData.duration,
-        p_scheduled_time: formData.scheduledTime,
+        p_scheduled_time: formData.scheduledTime, // This is now a 'timestamp' string or null
         p_gender_text: formData.gender,
         p_age_group_text: formData.ageGroup,
         p_orientation_text: formData.orientation 
