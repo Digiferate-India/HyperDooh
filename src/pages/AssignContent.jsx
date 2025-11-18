@@ -1,8 +1,9 @@
+// src/pages/AssignContent.jsx
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import MediaCard from '../components/MediaCard';
 
-// --- FolderIcon component (no change) ---
+// --- FolderIcon component ---
 function FolderIcon() {
   return (
     <svg 
@@ -16,14 +17,26 @@ function FolderIcon() {
   );
 }
 
-// --- BulkAssignForm component (UPDATED) ---
+// --- BulkAssignForm component ---
 function BulkAssignForm({ folder, screenId, onClose, onSave }) {
-  const [duration, setDuration] = useState(10); 
-  const [scheduledTime, setScheduledTime] = useState(''); 
+  const [duration, setDuration] = useState(''); 
+  const [startTime, setStartTime] = useState(''); 
+  const [endTime, setEndTime] = useState('');     
   const [gender, setGender] = useState('All');
   const [ageGroup, setAgeGroup] = useState('All');
   const [orientation, setOrientation] = useState('any'); 
   const [isSaving, setIsSaving] = useState(false);
+
+  // ✅ Helper to set Start Time to "Now"
+  const handleSetNow = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    setStartTime(`${year}-${month}-${day}T${hours}:${minutes}`);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,10 +44,9 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
     setIsSaving(true);
     
     await onSave({
-      duration,
-      // The 'datetime-local' input provides a string like '2025-11-16T12:30'
-      // This is a valid timestamp format for PostgreSQL.
-      scheduledTime: scheduledTime || null, 
+      duration: duration ? parseInt(duration) : null,
+      startTime: startTime || null, 
+      endTime: endTime || null,    
       gender,
       ageGroup,
       orientation, 
@@ -56,31 +68,51 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
         <h2 className="text-xl font-bold mb-4">
           Bulk-Assign Settings for "{folder.name}"
         </h2>
-        <p className="mb-4">These settings will apply to all media items in this folder for the selected screen.</p>
         
         <form onSubmit={handleSubmit}>
-          {/* ... all form inputs ... */}
           <div className="mb-4">
             <label className="block font-semibold mb-1">Duration (seconds):</label>
             <input
               type="number"
               value={duration}
-              onChange={(e) => setDuration(Number(e.target.value))}
-              className="w-full border p-2 rounded-lg text-black " 
-              required
+              onChange={(e) => setDuration(e.target.value)}
+              className="w-full border p-2 rounded-lg text-black" 
+              placeholder="Auto (3s for Images, Full for Video)"
             />
+            <p className="text-xs text-gray-500 mt-1">Leave blank for default behavior.</p>
           </div>
+          
+          {/* ✅ Start Time with "Set to Now" */}
           <div className="mb-4">
-            <label className="block font-semibold mb-1">Scheduled Date & Time (Optional):</label>
-            {/* ✅ --- THIS IS THE CHANGE --- */}
+            <div className="flex justify-between items-center mb-1">
+              <label className="block font-semibold">Start Date & Time (Optional):</label>
+              <button 
+                type="button" 
+                onClick={handleSetNow}
+                className="text-xs bg-blue-100 text-white-700 px-2 py-1 rounded hover:bg-white-200"
+              >
+                Set to Now
+              </button>
+            </div>
             <input
               type="datetime-local"
-              value={scheduledTime}
-              onChange={(e) => setScheduledTime(e.target.value)}
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
               className="w-full border p-2 rounded-lg text-black" 
             />
-            {/* ✅ --- END OF CHANGE --- */}
           </div>
+
+          <div className="mb-4">
+            <label className="block font-semibold mb-1">End Date & Time (Optional):</label>
+            <input
+              type="datetime-local"
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+              className="w-full border p-2 rounded-lg text-black" 
+            />
+            <p className="text-xs text-gray-500 mt-1">Leave blank to play indefinitely.</p>
+          </div>
+          
           <div className="mb-4">
             <label className="block font-semibold mb-1">Gender:</label>
             <select 
@@ -150,13 +182,11 @@ function AssignContent() {
   const [selectedScreen, setSelectedScreen] = useState('');
   const [assignments, setAssignments] = useState(new Map());
   const [isLoading, setIsLoading] = useState(true);
-
   const [folders, setFolders] = useState([]);
   const [currentFolder, setCurrentFolder] = useState(null); 
-  
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
 
-  // --- Effect to fetch data (no change) ---
+  // --- Effect to fetch data ---
   useEffect(() => {
     async function fetchData() {
       try {
@@ -181,7 +211,7 @@ function AssignContent() {
     fetchData();
   }, []);
 
-  // --- Effect to fetch assignments (no change) ---
+  // --- Effect to fetch assignments ---
   const [isFetchingAssignments, setIsFetchingAssignments] = useState(false);
   useEffect(() => {
     if (!selectedScreen) {
@@ -192,7 +222,7 @@ function AssignContent() {
       setIsFetchingAssignments(true);
       const { data, error } = await supabase
         .from('screens_media')
-        .select('*')
+        .select('*') 
         .eq('screen_id', selectedScreen);
         
       if (error) {
@@ -206,7 +236,7 @@ function AssignContent() {
     fetchAssignments();
   }, [selectedScreen]);
 
-  // --- handleAssignmentChange (no change) ---
+  // --- handleAssignmentChange ---
   const handleAssignmentChange = (assignmentUpdate) => {
     setAssignments(prevMap => {
       const newMap = new Map(prevMap);
@@ -221,7 +251,7 @@ function AssignContent() {
     });
   };
   
-  // --- handleBulkAssignSave (no change) ---
+  // --- handleBulkAssignSave ---
   const handleBulkAssignSave = async (formData) => {
     if (!selectedScreen || !currentFolder) {
       alert("Please select a screen and a folder first.");
@@ -232,8 +262,9 @@ function AssignContent() {
       const { error } = await supabase.rpc('bulk_assign_folder_v2', {
         p_screen_id: selectedScreen,
         p_folder_id: currentFolder.id,
-        p_duration_sec: formData.duration,
-        p_scheduled_time: formData.scheduledTime, // This is now a 'timestamp' string or null
+        p_duration_sec: formData.duration, 
+        p_start_time: formData.startTime, 
+        p_end_time: formData.endTime,     
         p_gender_text: formData.gender,
         p_age_group_text: formData.ageGroup,
         p_orientation_text: formData.orientation 
@@ -259,7 +290,6 @@ function AssignContent() {
     }
   };
 
-  // --- Helper variables (no change) ---
   const mediaInCurrentFolder = allMedia.filter(
     file => file.folder_id === currentFolder?.id
   );
@@ -267,10 +297,10 @@ function AssignContent() {
 
   if (isLoading) return <div className="p-6">Loading...</div>;
 
-  // --- return statement (no change) ---
+  // --- return statement ---
   return (
     <div className="p-6 bg-white text-gray-900 min-h-screen">
-      {/* --- Header and Screen Selector (no change) --- */}
+      {/* Header and Screen Selector */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold mb-2">Assign Content</h1>
         <p className="text-gray-600">Select a screen to view and edit its media assignments.</p>
@@ -288,8 +318,7 @@ function AssignContent() {
         </select>
       </div>
 
-      {/* --- CONDITIONAL RENDERING (no change) --- */}
-      
+      {/* Conditional Rendering */}
       {currentFolder ? (
         <div>
           <button
@@ -356,7 +385,7 @@ function AssignContent() {
         </div>
       )}
       
-      {/* --- Renders the modal (no change) --- */}
+      {/* Renders the modal */}
       {isBulkModalOpen && currentFolder && (
         <BulkAssignForm
           folder={currentFolder}
