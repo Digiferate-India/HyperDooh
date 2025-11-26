@@ -68,7 +68,7 @@ const tiers = [
     features: [
       "LCD Device Plan",
       "Content Looping and Scheduling",
-      "8 GB file storage/100 GiB memory transfer",
+      "30 GB file storage/100 GiB memory transfer",
       "Support within 48 hours",
       "Content classification",
       "Split screen",
@@ -89,6 +89,8 @@ const tiers = [
       "Support within 48 hours",
       "Content classification",
       "Split screen",
+      "Trigger based content generation",
+      "Real time analytics",
     ],
     cta: "Talk to sales",
     highlight: false,

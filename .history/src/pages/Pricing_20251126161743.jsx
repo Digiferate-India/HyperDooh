@@ -89,6 +89,8 @@ const tiers = [
       "Support within 48 hours",
       "Content classification",
       "Split screen",
+      "Trigger based content generation",
+      "Real time analytics",
     ],
     cta: "Talk to sales",
     highlight: false,
