@@ -43,6 +43,7 @@ function DayPickerDropdown({ selectedDays, onChange }) {
     }
     
     // Sort the days based on our predefined order (Sun -> Sat)
+    // This keeps the database string clean (e.g., "Sun,Mon,Tue")
     const sortedDays = DAYS_OPTIONS
       .filter(d => newArray.includes(d.id))
       .map(d => d.id);
@@ -96,7 +97,7 @@ function DayPickerDropdown({ selectedDays, onChange }) {
                   type="checkbox"
                   checked={selectedArray.includes(day.id)}
                   onChange={() => {}} // handled by parent div onClick
-                  className="mr-3 h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 pointer-events-none" 
+                  className="mr-3 h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 pointer-events-none" // pointer-events-none lets the row handle the click
                 />
                 <span className="text-sm text-gray-700 font-medium select-none">
                   {day.label}
@@ -256,9 +257,6 @@ function AssignContent() {
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
   const [isFetchingAssignments, setIsFetchingAssignments] = useState(false);
 
-  // --- 🆕 NEW STATE: Track which media card is currently open (Accordion) ---
-  const [expandedMediaId, setExpandedMediaId] = useState(null);
-
   useEffect(() => {
     async function fetchData() {
       try {
@@ -297,13 +295,6 @@ function AssignContent() {
     });
   };
   
-  // --- 🆕 HELPER: Handle the toggle logic ---
-  const handleCardToggle = (mediaId) => {
-    // If the clicked card is already open, close it (set to null).
-    // Otherwise, set it to the new mediaId.
-    setExpandedMediaId(prevId => (prevId === mediaId ? null : mediaId));
-  };
-
   const handleBulkAssignSave = async (formData) => {
     if (!selectedScreen || !currentFolder) { alert("Please select a screen and a folder first."); return; }
     try {
@@ -362,16 +353,7 @@ function AssignContent() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {mediaInCurrentFolder.map(mediaItem => (
-              <MediaCard 
-                key={mediaItem.id} 
-                mediaItem={mediaItem} 
-                screenId={selectedScreen} 
-                initialAssignment={assignments.get(mediaItem.id)} 
-                onAssignmentChange={handleAssignmentChange}
-                // --- 🆕 NEW: Pass control down to the child ---
-                isExpanded={expandedMediaId === mediaItem.id}
-                onToggle={() => handleCardToggle(mediaItem.id)}
-              />
+              <MediaCard key={mediaItem.id} mediaItem={mediaItem} screenId={selectedScreen} initialAssignment={assignments.get(mediaItem.id)} onAssignmentChange={handleAssignmentChange} />
             ))}
           </div>
         </div>
@@ -389,16 +371,7 @@ function AssignContent() {
           <h2 className="text-xl font-bold mb-4">Unassigned Media</h2>
           <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {mediaWithoutFolders.map(mediaItem => (
-              <MediaCard 
-                key={mediaItem.id} 
-                mediaItem={mediaItem} 
-                screenId={selectedScreen} 
-                initialAssignment={assignments.get(mediaItem.id)} 
-                onAssignmentChange={handleAssignmentChange}
-                // --- 🆕 NEW: Pass control down to the child ---
-                isExpanded={expandedMediaId === mediaItem.id}
-                onToggle={() => handleCardToggle(mediaItem.id)}
-              />
+              <MediaCard key={mediaItem.id} mediaItem={mediaItem} screenId={selectedScreen} initialAssignment={assignments.get(mediaItem.id)} onAssignmentChange={handleAssignmentChange} />
             ))}
           </div>
         </div>
