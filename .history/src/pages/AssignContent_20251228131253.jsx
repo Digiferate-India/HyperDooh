@@ -11,7 +11,7 @@ function FolderIcon() {
   );
 }
 
-// --- Constants for Days ---
+// --- Constants for Days (Matches your requested text) ---
 const DAYS_OPTIONS = [
   { id: 'Sun', label: 'Every Sunday' },
   { id: 'Mon', label: 'Every Monday' },
@@ -22,28 +22,25 @@ const DAYS_OPTIONS = [
   { id: 'Sat', label: 'Every Saturday' },
 ];
 
-// --- ✅ ROBUST MULTI-SELECT DROPDOWN ---
+// --- ✅ NEW: Custom Dropdown Component ---
 function DayPickerDropdown({ selectedDays, onChange }) {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Safely parse the comma-separated string into an array
+  // Convert comma-string "Mon,Tue" into array ["Mon", "Tue"] for easier handling
   const selectedArray = selectedDays ? selectedDays.split(',') : [];
 
-  const toggleDay = (e, dayId) => {
-    // Prevent the click from bubbling up and closing the menu
-    e.stopPropagation();
-
+  const toggleDay = (dayId) => {
     let newArray;
     if (selectedArray.includes(dayId)) {
-      // Remove day
+      // Remove day if already checked
       newArray = selectedArray.filter((d) => d !== dayId);
     } else {
-      // Add day
+      // Add day if not checked
       newArray = [...selectedArray, dayId];
     }
     
-    // Sort the days based on our predefined order (Sun -> Sat)
-    // This keeps the database string clean (e.g., "Sun,Mon,Tue")
+    // Sort days to keep data clean (Mon,Tue,Wed...)
+    // We stick to the order defined in DAYS_OPTIONS
     const sortedDays = DAYS_OPTIONS
       .filter(d => newArray.includes(d.id))
       .map(d => d.id);
@@ -51,58 +48,50 @@ function DayPickerDropdown({ selectedDays, onChange }) {
     onChange(sortedDays.join(','));
   };
 
-  // Label Logic: What to show on the button
-  const getLabel = () => {
-    if (selectedArray.length === 0) return "Select Days...";
-    if (selectedArray.length === 7) return "Every Day";
-    return selectedArray.join(', '); // e.g. "Mon, Wed, Fri"
-  };
-
   return (
-    <div className="relative w-full">
-      {/* 1. The Trigger Button */}
+    <div className="relative">
+      {/* The Trigger Button (Looks like the Orientation dropdown) */}
       <button
-        type="button" // Important: Prevents form submit
-        onClick={(e) => {
-          e.preventDefault();
-          setIsOpen(!isOpen);
-        }}
-        className="w-full border border-gray-300 bg-white p-2 rounded-lg text-sm text-left flex justify-between items-center shadow-sm text-gray-900 hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full border p-2 rounded-lg bg-white text-sm text-left flex justify-between items-center shadow-sm text-black border-gray-300 hover:border-gray-400"
       >
-        <span className="truncate font-medium">{getLabel()}</span>
-        <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <span className="truncate">
+          {selectedArray.length === 0 
+            ? "Select Days..." 
+            : selectedArray.length === 7 
+              ? "Every Day" 
+              : selectedArray.join(', ')}
+        </span>
+        {/* Dropdown Arrow Icon */}
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
 
-      {/* 2. The Dropdown Menu */}
+      {/* The Checkbox List (Visible only when isOpen is true) */}
       {isOpen && (
         <>
-          {/* Invisible Backdrop to handle "click outside" */}
+          {/* Invisible background to close dropdown when clicking outside */}
           <div 
-            className="fixed inset-0 z-40 cursor-default" 
+            className="fixed inset-0 z-10 cursor-default" 
             onClick={() => setIsOpen(false)} 
           />
           
-          {/* The Actual List */}
-          <div className="absolute z-50 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-xl max-h-60 overflow-y-auto">
+          <div className="absolute z-20 w-full bg-white border border-gray-300 shadow-xl mt-1 rounded-md max-h-60 overflow-y-auto">
             {DAYS_OPTIONS.map((day) => (
-              <div 
-                key={day.id}
-                // Toggle when clicking the row
-                onClick={(e) => toggleDay(e, day.id)}
-                className="flex items-center px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-0 transition-colors"
+              <label 
+                key={day.id} 
+                className="flex items-center px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-0"
               >
                 <input
                   type="checkbox"
                   checked={selectedArray.includes(day.id)}
-                  onChange={() => {}} // handled by parent div onClick
-                  className="mr-3 h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 pointer-events-none" // pointer-events-none lets the row handle the click
+                  onChange={() => toggleDay(day.id)}
+                  className="mr-3 h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                 />
-                <span className="text-sm text-gray-700 font-medium select-none">
-                  {day.label}
-                </span>
-              </div>
+                <span className="text-sm text-gray-700 font-medium">{day.label}</span>
+              </label>
             ))}
           </div>
         </>
@@ -204,8 +193,8 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
               </div>
             </div>
 
-            {/* ✅ UPDATED: Robust Dropdown Component */}
-            <div className="mb-2 relative">
+            {/* ✅ UPDATED: Using Custom Checkbox Dropdown */}
+            <div className="mb-2">
               <label className="block text-xs font-bold text-gray-500 mb-1">Repeat On</label>
               <DayPickerDropdown 
                 selectedDays={daysOfWeek} 

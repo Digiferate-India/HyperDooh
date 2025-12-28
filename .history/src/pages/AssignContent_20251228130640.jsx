@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import MediaCard from '../components/MediaCard';
+// Removed DaySelector import as it is no longer used
 
-// --- Icons ---
 function FolderIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-full h-40 object-cover text-yellow-500">
@@ -11,107 +11,6 @@ function FolderIcon() {
   );
 }
 
-// --- Constants for Days ---
-const DAYS_OPTIONS = [
-  { id: 'Sun', label: 'Every Sunday' },
-  { id: 'Mon', label: 'Every Monday' },
-  { id: 'Tue', label: 'Every Tuesday' },
-  { id: 'Wed', label: 'Every Wednesday' },
-  { id: 'Thu', label: 'Every Thursday' },
-  { id: 'Fri', label: 'Every Friday' },
-  { id: 'Sat', label: 'Every Saturday' },
-];
-
-// --- ✅ ROBUST MULTI-SELECT DROPDOWN ---
-function DayPickerDropdown({ selectedDays, onChange }) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  // Safely parse the comma-separated string into an array
-  const selectedArray = selectedDays ? selectedDays.split(',') : [];
-
-  const toggleDay = (e, dayId) => {
-    // Prevent the click from bubbling up and closing the menu
-    e.stopPropagation();
-
-    let newArray;
-    if (selectedArray.includes(dayId)) {
-      // Remove day
-      newArray = selectedArray.filter((d) => d !== dayId);
-    } else {
-      // Add day
-      newArray = [...selectedArray, dayId];
-    }
-    
-    // Sort the days based on our predefined order (Sun -> Sat)
-    // This keeps the database string clean (e.g., "Sun,Mon,Tue")
-    const sortedDays = DAYS_OPTIONS
-      .filter(d => newArray.includes(d.id))
-      .map(d => d.id);
-    
-    onChange(sortedDays.join(','));
-  };
-
-  // Label Logic: What to show on the button
-  const getLabel = () => {
-    if (selectedArray.length === 0) return "Select Days...";
-    if (selectedArray.length === 7) return "Every Day";
-    return selectedArray.join(', '); // e.g. "Mon, Wed, Fri"
-  };
-
-  return (
-    <div className="relative w-full">
-      {/* 1. The Trigger Button */}
-      <button
-        type="button" // Important: Prevents form submit
-        onClick={(e) => {
-          e.preventDefault();
-          setIsOpen(!isOpen);
-        }}
-        className="w-full border border-gray-300 bg-white p-2 rounded-lg text-sm text-left flex justify-between items-center shadow-sm text-gray-900 hover:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
-      >
-        <span className="truncate font-medium">{getLabel()}</span>
-        <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-
-      {/* 2. The Dropdown Menu */}
-      {isOpen && (
-        <>
-          {/* Invisible Backdrop to handle "click outside" */}
-          <div 
-            className="fixed inset-0 z-40 cursor-default" 
-            onClick={() => setIsOpen(false)} 
-          />
-          
-          {/* The Actual List */}
-          <div className="absolute z-50 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-xl max-h-60 overflow-y-auto">
-            {DAYS_OPTIONS.map((day) => (
-              <div 
-                key={day.id}
-                // Toggle when clicking the row
-                onClick={(e) => toggleDay(e, day.id)}
-                className="flex items-center px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-0 transition-colors"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedArray.includes(day.id)}
-                  onChange={() => {}} // handled by parent div onClick
-                  className="mr-3 h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 pointer-events-none" // pointer-events-none lets the row handle the click
-                />
-                <span className="text-sm text-gray-700 font-medium select-none">
-                  {day.label}
-                </span>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-// --- Bulk Assign Form ---
 function BulkAssignForm({ folder, screenId, onClose, onSave }) {
   const [duration, setDuration] = useState('');
   
@@ -121,7 +20,7 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
   const [dailyStartTime, setDailyStartTime] = useState('');
   const [dailyEndTime, setDailyEndTime] = useState('');
   
-  // Default: All days selected
+  // ✅ Changed default to match the first option of the dropdown
   const [daysOfWeek, setDaysOfWeek] = useState('Mon,Tue,Wed,Thu,Fri,Sat,Sun'); 
 
   // Metadata
@@ -135,7 +34,7 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
     setEndDate('');
     setDailyStartTime('');
     setDailyEndTime('');
-    setDaysOfWeek('Mon,Tue,Wed,Thu,Fri,Sat,Sun'); 
+    setDaysOfWeek('Mon,Tue,Wed,Thu,Fri,Sat,Sun'); // Reset to Every Day
   };
 
   const handleSubmit = async (e) => {
@@ -204,13 +103,26 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
               </div>
             </div>
 
-            {/* ✅ UPDATED: Robust Dropdown Component */}
-            <div className="mb-2 relative">
+            {/* ✅ NEW: Days Dropdown instead of Checkboxes */}
+            <div>
               <label className="block text-xs font-bold text-gray-500 mb-1">Repeat On</label>
-              <DayPickerDropdown 
-                selectedDays={daysOfWeek} 
-                onChange={setDaysOfWeek} 
-              />
+              <select 
+                value={daysOfWeek} 
+                onChange={(e) => setDaysOfWeek(e.target.value)} 
+                className="w-full border p-2 rounded bg-white text-sm text-black"
+              >
+                <option value="Mon,Tue,Wed,Thu,Fri,Sat,Sun">Every Day</option>
+                <option value="Mon,Tue,Wed,Thu,Fri">Weekdays (Mon-Fri)</option>
+                <option value="Sat,Sun">Weekends (Sat-Sun)</option>
+                <option disabled>--- Specific Days ---</option>
+                <option value="Mon">Mondays Only</option>
+                <option value="Tue">Tuesdays Only</option>
+                <option value="Wed">Wednesdays Only</option>
+                <option value="Thu">Thursdays Only</option>
+                <option value="Fri">Fridays Only</option>
+                <option value="Sat">Saturdays Only</option>
+                <option value="Sun">Sundays Only</option>
+              </select>
             </div>
           </div>
 
@@ -245,7 +157,6 @@ function BulkAssignForm({ folder, screenId, onClose, onSave }) {
   );
 }
 
-// --- Main Page Component ---
 function AssignContent() {
   const [screens, setScreens] = useState([]);
   const [allMedia, setAllMedia] = useState([]);

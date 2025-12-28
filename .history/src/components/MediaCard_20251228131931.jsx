@@ -52,8 +52,7 @@ function DayPickerDropdown({ selectedDays, onChange }) {
           e.stopPropagation();
           setIsOpen(!isOpen);
         }}
-        // ✅ FIXED: Added !bg-white and !text-gray-900 to override global button styles
-        className="w-full border border-gray-300 !bg-white !text-gray-900 p-1 rounded text-[10px] text-left flex justify-between items-center shadow-sm hover:border-blue-500 focus:outline-none"
+        className="w-full border border-gray-300 bg-white p-1 rounded text-[10px] text-left flex justify-between items-center shadow-sm text-gray-900 hover:border-blue-500 focus:outline-none"
       >
         <span className="truncate font-medium">{getLabel()}</span>
         <svg xmlns="http://www.w3.org/2000/svg" className={`h-3 w-3 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -211,7 +210,7 @@ function MediaCard({ mediaItem, screenId, initialAssignment, onAssignmentChange 
   const imageUrl = mediaItem.thumbnail_path || mediaItem.file_path;
 
   return (
-    // Note: rounded-lg enables the dropdown to flow outside if needed
+    // NOTE: Removed 'overflow-hidden' and added 'rounded-lg' so the dropdown can pop out of the card
     <div className="border rounded-lg shadow-md bg-white flex flex-col relative">
       <img src={imageUrl} alt={mediaItem.file_name} className="w-full h-40 object-cover rounded-t-lg" />
       <div className="p-4 flex-grow flex flex-col">
@@ -229,7 +228,7 @@ function MediaCard({ mediaItem, screenId, initialAssignment, onAssignmentChange 
               <button 
                 type="button" 
                 onClick={handleClearSchedule}
-                className="text-[10px] text-red-600 hover:underline !bg-transparent"
+                className="text-[10px] text-red-600 hover:underline"
               >
                 Clear
               </button>
@@ -244,7 +243,7 @@ function MediaCard({ mediaItem, screenId, initialAssignment, onAssignmentChange 
               <input type="time" value={dailyEndTime} onChange={(e) => setDailyEndTime(e.target.value)} className="w-full p-1 border rounded text-[10px]" title="Daily End Time" />
             </div>
             
-            {/* ✅ UPDATED: Fixed Dropdown Background Color */}
+            {/* ✅ UPDATED: Using Dropdown for Days */}
             <div className="mt-1">
               <label className="text-[10px] font-bold text-gray-500 block mb-0.5">Repeat On</label>
               <DayPickerDropdown selectedDays={daysOfWeek} onChange={setDaysOfWeek} />
