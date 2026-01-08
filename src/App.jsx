@@ -8,24 +8,30 @@ import Pricing from "./pages/Pricing";
 import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
-import DashboardLayout from "./pages/dashboard/DashboardLayout"; // Import the new layout
+import DashboardLayout from "./pages/dashboard/DashboardLayout";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import PairScreen from "./pages/PairScreen";
-import UploadMedia from "./pages/UploadMedia"; // Added missing import
+import UploadMedia from "./pages/UploadMedia";
 import AssignContent from "./pages/AssignContent";
-import "./App.css"; // ✅ Make sure this is here!
 import PlaybackScreen from "./pages/PlaybackScreen";
-import PrivacyPolicy from "./pages/PrivacyPolicy"; // ✅ --- ADDED IMPORT ---
-import TermsAndConditions from "./pages/TermsAndConditions"; // ✅ --- ADDED IMPORT ---
-import CookiePolicy from "./pages/CookiePolicy"; // ✅ --- ADDED IMPORT ---
-import License from "./pages/License"; // ✅ --- ADDED IMPORT ---
+
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsAndConditions from "./pages/TermsAndConditions";
+import CookiePolicy from "./pages/CookiePolicy";
+import License from "./pages/License";
+
 import ForgotPassword from "./pages/ForgotPassword";
 import UpdatePassword from "./pages/UpdatePassword";
+
+// ✅ CV pages from Rahul
+import CVConfiguration from "./pages/dashboard/CVConfiguration";
+import RulesManagement from "./pages/dashboard/RulesManagement";
+
+import "./App.css";
 
 function App() {
   const location = useLocation();
 
-  // Hide navbar on any route that starts with /dashboard
   const hideNavbar = location.pathname.startsWith("/dashboard");
 
   return (
@@ -40,14 +46,18 @@ function App() {
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
+
+          {/* Auth flows */}
           <Route path="/forgot-password" element={<ForgotPassword />} />
-  <Route path="/update-password" element={<UpdatePassword />} />
-          {/* ✅ --- ADDED NEW ROUTE --- */}
+          <Route path="/update-password" element={<UpdatePassword />} />
+
+          {/* Legal */}
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
           <Route path="/cookie-policy" element={<CookiePolicy />} />
           <Route path="/license" element={<License />} />
-          {/* Protected Dashboard Routes */}
+
+          {/* Protected Dashboard */}
           <Route
             path="/dashboard"
             element={
@@ -61,8 +71,10 @@ function App() {
             <Route path="upload-media" element={<UploadMedia />} />
             <Route path="assign-content" element={<AssignContent />} />
             <Route path="playback-screen" element={<PlaybackScreen />} />
-            
-            {/* Add other dashboard pages here */}
+
+            {/* CV routes */}
+            <Route path="cv-configuration" element={<CVConfiguration />} />
+            <Route path="rules-management" element={<RulesManagement />} />
           </Route>
         </Routes>
       </main>
