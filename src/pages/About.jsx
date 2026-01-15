@@ -188,60 +188,62 @@ const About = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 w-full">
-            {teamMembers.map((member) => (
-              <div
-                key={member.name}
-                className="bg-gray-800 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 w-full"
-              >
-                <div className="flex items-center mb-6 w-full">
-                  <img
-                    className="h-16 w-16 rounded-full object-cover mr-4 border-2 border-indigo-500"
-                    src={member.imageUrl}
-                    alt={member.name}
-                  />
-                  <div className="w-full">
-                    <h4 className="text-lg font-semibold">{member.name}</h4>
-                    <p className="text-indigo-400 text-sm">{member.role}</p>
+          <div className="flex justify-center w-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 w-fit">
+              {teamMembers.map((member) => (
+                <div
+                  key={member.name}
+                  className="bg-gray-800 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 w-[320px]"
+                >
+                  <div className="flex items-center mb-6 w-full">
+                    <img
+                      className="h-16 w-16 rounded-full object-cover mr-4 border-2 border-indigo-500"
+                      src={member.imageUrl}
+                      alt={member.name}
+                    />
+                    <div className="w-full">
+                      <h4 className="text-lg font-semibold">{member.name}</h4>
+                      <p className="text-indigo-400 text-sm">{member.role}</p>
+                    </div>
                   </div>
-                </div>
 
-                <p className="text-gray-300 text-sm mb-6 leading-relaxed border-l-2 border-indigo-500 pl-4 w-full">
-                  "{member.description}"
-                </p>
+                  <p className="text-gray-300 text-sm mb-6 leading-relaxed border-l-2 border-indigo-500 pl-4 w-full">
+                    "{member.description}"
+                  </p>
 
-                <div className="flex items-center justify-between mb-6 w-full">
-                  <div className="flex items-center space-x-2">
-                    {member.eco && (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-900/30 text-blue-300 border border-blue-700/50">
-                        HyperDOOH
-                      </span>
-                    )}
+                  <div className="flex items-center justify-between mb-6 w-full">
+                    <div className="flex items-center space-x-2">
+                      {member.eco && (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-900/30 text-blue-300 border border-blue-700/50">
+                          HyperDOOH
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-center justify-between mb-6 w-full">
-                  <a
-                    href={member.linkedin}
-                    className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors flex items-center"
-                  >
-                    <span>LinkedIn</span>
-                    <svg
-                      className="w-4 h-4 ml-1"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
+                  <div className="flex items-center justify-between mb-6 w-full">
+                    <a
+                      href={member.linkedin}
+                      className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors flex items-center"
                     >
-                      <path d="M8.29 16.752V9.186h-2.24v7.566h2.24zM7.175 8.367c.779 0 1.262-.568 1.262-1.277-.014-.723-.483-1.277-1.248-1.277S5.9 6.367 5.9 7.09c0 .709.483 1.277 1.234 1.277h.041zM10.194 16.752h2.24v-4.35c0-.231.016-.463.084-.628.186-.463.61-.943 1.324-.943.934 0 1.307.671 1.307 1.654v4.267h2.24v-4.57c0-2.449-1.334-3.589-3.114-3.589-1.458 0-2.1.775-2.45 1.318h-.034v-1.134h-2.24c.03.67 0 7.566 0 7.566z" />
-                    </svg>
-                  </a>
-                </div>
+                      <span>LinkedIn</span>
+                      <svg
+                        className="w-4 h-4 ml-1"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path d="M8.29 16.752V9.186h-2.24v7.566h2.24zM7.175 8.367c.779 0 1.262-.568 1.262-1.277-.014-.723-.483-1.277-1.248-1.277S5.9 6.367 5.9 7.09c0 .709.483 1.277 1.234 1.277h.041zM10.194 16.752h2.24v-4.35c0-.231.016-.463.084-.628.186-.463.61-.943 1.324-.943.934 0 1.307.671 1.307 1.654v4.267h2.24v-4.57c0-2.449-1.334-3.589-3.114-3.589-1.458 0-2.1.775-2.45 1.318h-.034v-1.134h-2.24c.03.67 0 7.566 0 7.566z" />
+                      </svg>
+                    </a>
+                  </div>
 
-                <div className="pt-4 border-t border-gray-700 w-full">
+                  <div className="pt-4 border-t border-gray-700 w-full"></div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
+
         </div>
       </div>
 
