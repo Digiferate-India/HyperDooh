@@ -11,15 +11,15 @@ const teamMembers = [
     linkedin: "https://www.linkedin.com/in/nivedita-kamath/",
     eco: true,
   },
-  {
-    name: "Tanishq Pratap",
-    role: "Developer",
-    imageUrl: "https://i.postimg.cc/13sf6gd1/Gemini-Generated-Image-upc5mmupc5mmupc5.png",
-    description:
-      "A Multidisciplinary Designer and Developer with a passion for creating seamless digital experiences. Skilled in both front-end and back-end development, with a keen eye for design aesthetics.",
-    linkedin: "#",
-    eco: false,
-  },
+  // {
+  //   name: "Tanishq Pratap",
+  //   role: "Developer",
+  //   imageUrl: "https://i.postimg.cc/13sf6gd1/Gemini-Generated-Image-upc5mmupc5mmupc5.png",
+  //   description:
+  //     "A Multidisciplinary Designer and Developer with a passion for creating seamless digital experiences. Skilled in both front-end and back-end development, with a keen eye for design aesthetics.",
+  //   linkedin: "#",
+  //   eco: false,
+  // },
   {
     name: "Rakshith Kambi",
     role: "Advisor",
