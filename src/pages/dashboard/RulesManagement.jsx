@@ -320,6 +320,7 @@ function RulesManagement() {
                 type="number"
                 min="0"
                 step="1"
+                max= "100"
                 inputMode="numeric"
                 value={newRule.priority ?? ''}
                 onKeyDown={(e) => {
