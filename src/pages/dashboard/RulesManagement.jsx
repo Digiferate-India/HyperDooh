@@ -318,10 +318,26 @@ function RulesManagement() {
               <label className="block text-sm font-medium mb-1">Priority</label>
               <input
                 type="number"
+                min="0"
+                step="1"
+                inputMode="numeric"
                 value={newRule.priority ?? ''}
-                onChange={(e) =>
-                  setNewRule({ ...newRule, priority: e.target.value })
-                }
+                onKeyDown={(e) => {
+                  if (e.key === '-' || e.key === 'e' || e.key === 'E') e.preventDefault();
+                }}
+                onChange={(e) => {
+                  const val = e.target.value;
+
+                  // allow empty (null)
+                  if (val === '') {
+                    setNewRule({ ...newRule, priority: '' });
+                    return;
+                  }
+
+                  // clamp to 0
+                  const n = Math.max(0, Number(val));
+                  setNewRule({ ...newRule, priority: String(Math.trunc(n)) });
+                }}
                 className="w-full border p-2 rounded"
               />
               <p className="text-xs text-gray-500 mt-1">
@@ -349,13 +365,26 @@ function RulesManagement() {
               <label className="block text-sm font-medium mb-1">Min People</label>
               <input
                 type="number"
+                min="0"
+                step="1"
+                inputMode="numeric"
                 value={newRule.min_people ?? ''}
-                onChange={(e) =>
-                  setNewRule({
-                    ...newRule,
-                    min_people: e.target.value,
-                  })
-                }
+                onKeyDown={(e) => {
+                  if (e.key === '-' || e.key === 'e' || e.key === 'E') e.preventDefault();
+                }}
+                onChange={(e) => {
+                  const val = e.target.value;
+
+                  // allow empty (null)
+                  if (val === '') {
+                    setNewRule({ ...newRule, min_people: '' });
+                    return;
+                  }
+
+                  // clamp to 0
+                  const n = Math.max(0, Number(val));
+                  setNewRule({ ...newRule, min_people: String(Math.trunc(n)) });
+                }}
                 className="w-full border p-2 rounded"
                 placeholder="Leave empty for no limit"
               />
@@ -364,13 +393,26 @@ function RulesManagement() {
               <label className="block text-sm font-medium mb-1">Max People</label>
               <input
                 type="number"
+                min="0"
+                step="1"
+                inputMode="numeric"
                 value={newRule.max_people ?? ''}
-                onChange={(e) =>
-                  setNewRule({
-                    ...newRule,
-                    max_people: e.target.value,
-                  })
-                }
+                onKeyDown={(e) => {
+                  if (e.key === '-' || e.key === 'e' || e.key === 'E') e.preventDefault();
+                }}
+                onChange={(e) => {
+                  const val = e.target.value;
+
+                  // allow empty (null)
+                  if (val === '') {
+                    setNewRule({ ...newRule, max_people: '' });
+                    return;
+                  }
+
+                  // clamp to 0
+                  const n = Math.max(0, Number(val));
+                  setNewRule({ ...newRule, max_people: String(Math.trunc(n)) });
+                }}
                 className="w-full border p-2 rounded"
                 placeholder="Leave empty for no limit"
               />
@@ -383,13 +425,26 @@ function RulesManagement() {
               <label className="block text-sm font-medium mb-1">Min Males</label>
               <input
                 type="number"
+                min="0"
+                step="1"
+                inputMode="numeric"
                 value={newRule.min_males ?? ''}
-                onChange={(e) =>
-                  setNewRule({
-                    ...newRule,
-                    min_males: e.target.value,
-                  })
-                }
+                onKeyDown={(e) => {
+                  if (e.key === '-' || e.key === 'e' || e.key === 'E') e.preventDefault();
+                }}
+                onChange={(e) => {
+                  const val = e.target.value;
+
+                  // allow empty (null)
+                  if (val === '') {
+                    setNewRule({ ...newRule, min_males: '' });
+                    return;
+                  }
+
+                  // clamp to 0
+                  const n = Math.max(0, Number(val));
+                  setNewRule({ ...newRule, min_males: String(Math.trunc(n)) });
+                }}
                 className="w-full border p-2 rounded"
               />
             </div>
@@ -397,13 +452,26 @@ function RulesManagement() {
               <label className="block text-sm font-medium mb-1">Max Males</label>
               <input
                 type="number"
+                min="0"
+                step="1"
+                inputMode="numeric"
                 value={newRule.max_males ?? ''}
-                onChange={(e) =>
-                  setNewRule({
-                    ...newRule,
-                    max_males: e.target.value,
-                  })
-                }
+                onKeyDown={(e) => {
+                  if (e.key === '-' || e.key === 'e' || e.key === 'E') e.preventDefault();
+                }}
+                onChange={(e) => {
+                  const val = e.target.value;
+
+                  // allow empty (null)
+                  if (val === '') {
+                    setNewRule({ ...newRule, max_males: '' });
+                    return;
+                  }
+
+                  // clamp to 0
+                  const n = Math.max(0, Number(val));
+                  setNewRule({ ...newRule, max_males: String(Math.trunc(n)) });
+                }}
                 className="w-full border p-2 rounded"
               />
             </div>
@@ -411,13 +479,26 @@ function RulesManagement() {
               <label className="block text-sm font-medium mb-1">Min Females</label>
               <input
                 type="number"
+                min="0"
+                step="1"
+                inputMode="numeric"
                 value={newRule.min_females ?? ''}
-                onChange={(e) =>
-                  setNewRule({
-                    ...newRule,
-                    min_females: e.target.value,
-                  })
-                }
+                onKeyDown={(e) => {
+                  if (e.key === '-' || e.key === 'e' || e.key === 'E') e.preventDefault();
+                }}
+                onChange={(e) => {
+                  const val = e.target.value;
+
+                  // allow empty (null)
+                  if (val === '') {
+                    setNewRule({ ...newRule, min_females: '' });
+                    return;
+                  }
+
+                  // clamp to 0
+                  const n = Math.max(0, Number(val));
+                  setNewRule({ ...newRule, min_females: String(Math.trunc(n)) });
+                }}
                 className="w-full border p-2 rounded"
               />
             </div>
@@ -425,13 +506,26 @@ function RulesManagement() {
               <label className="block text-sm font-medium mb-1">Max Females</label>
               <input
                 type="number"
+                min="0"
+                step="1"
+                inputMode="numeric"
                 value={newRule.max_females ?? ''}
-                onChange={(e) =>
-                  setNewRule({
-                    ...newRule,
-                    max_females: e.target.value,
-                  })
-                }
+                onKeyDown={(e) => {
+                  if (e.key === '-' || e.key === 'e' || e.key === 'E') e.preventDefault();
+                }}
+                onChange={(e) => {
+                  const val = e.target.value;
+
+                  // allow empty (null)
+                  if (val === '') {
+                    setNewRule({ ...newRule, max_females: '' });
+                    return;
+                  }
+
+                  // clamp to 0
+                  const n = Math.max(0, Number(val));
+                  setNewRule({ ...newRule, max_females: String(Math.trunc(n)) });
+                }}
                 className="w-full border p-2 rounded"
               />
             </div>
@@ -443,13 +537,26 @@ function RulesManagement() {
               <label className="block text-sm font-medium mb-1">Min Avg Age</label>
               <input
                 type="number"
+                min="0"
+                step="1"
+                inputMode="numeric"
                 value={newRule.min_avg_age ?? ''}
-                onChange={(e) =>
-                  setNewRule({
-                    ...newRule,
-                    min_avg_age: e.target.value,
-                  })
-                }
+                onKeyDown={(e) => {
+                  if (e.key === '-' || e.key === 'e' || e.key === 'E') e.preventDefault();
+                }}
+                onChange={(e) => {
+                  const val = e.target.value;
+
+                  // allow empty (null)
+                  if (val === '') {
+                    setNewRule({ ...newRule, min_avg_age: '' });
+                    return;
+                  }
+
+                  // clamp to 0
+                  const n = Math.max(0, Number(val));
+                  setNewRule({ ...newRule, min_avg_age: String(Math.trunc(n)) });
+                }}
                 className="w-full border p-2 rounded"
               />
             </div>
@@ -457,13 +564,26 @@ function RulesManagement() {
               <label className="block text-sm font-medium mb-1">Max Avg Age</label>
               <input
                 type="number"
+                min="0"
+                step="1"
+                inputMode="numeric"
                 value={newRule.max_avg_age ?? ''}
-                onChange={(e) =>
-                  setNewRule({
-                    ...newRule,
-                    max_avg_age: e.target.value,
-                  })
-                }
+                onKeyDown={(e) => {
+                  if (e.key === '-' || e.key === 'e' || e.key === 'E') e.preventDefault();
+                }}
+                onChange={(e) => {
+                  const val = e.target.value;
+
+                  // allow empty (null)
+                  if (val === '') {
+                    setNewRule({ ...newRule, max_avg_age: '' });
+                    return;
+                  }
+
+                  // clamp to 0
+                  const n = Math.max(0, Number(val));
+                  setNewRule({ ...newRule, max_avg_age: String(Math.trunc(n)) });
+                }}
                 className="w-full border p-2 rounded"
               />
             </div>
@@ -477,13 +597,26 @@ function RulesManagement() {
               </label>
               <input
                 type="number"
+                min="0"
+                step="1"
+                inputMode="numeric"
                 value={newRule.min_dwell_seconds ?? ''}
-                onChange={(e) =>
-                  setNewRule({
-                    ...newRule,
-                    min_dwell_seconds: e.target.value,
-                  })
-                }
+                onKeyDown={(e) => {
+                  if (e.key === '-' || e.key === 'e' || e.key === 'E') e.preventDefault();
+                }}
+                onChange={(e) => {
+                  const val = e.target.value;
+
+                  // allow empty (null)
+                  if (val === '') {
+                    setNewRule({ ...newRule, min_dwell_seconds: '' });
+                    return;
+                  }
+
+                  // clamp to 0
+                  const n = Math.max(0, Number(val));
+                  setNewRule({ ...newRule, min_dwell_seconds: String(Math.trunc(n)) });
+                }}
                 className="w-full border p-2 rounded"
               />
             </div>
@@ -493,13 +626,26 @@ function RulesManagement() {
               </label>
               <input
                 type="number"
+                min="0"
+                step="1"
+                inputMode="numeric"
                 value={newRule.max_dwell_seconds ?? ''}
-                onChange={(e) =>
-                  setNewRule({
-                    ...newRule,
-                    max_dwell_seconds: e.target.value,
-                  })
-                }
+                onKeyDown={(e) => {
+                  if (e.key === '-' || e.key === 'e' || e.key === 'E') e.preventDefault();
+                }}
+                onChange={(e) => {
+                  const val = e.target.value;
+
+                  // allow empty (null)
+                  if (val === '') {
+                    setNewRule({ ...newRule, max_dwell_seconds: '' });
+                    return;
+                  }
+
+                  // clamp to 0
+                  const n = Math.max(0, Number(val));
+                  setNewRule({ ...newRule, max_dwell_seconds: String(Math.trunc(n)) });
+                }}
                 className="w-full border p-2 rounded"
               />
             </div>
