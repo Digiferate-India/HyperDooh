@@ -1,9 +1,9 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const FACE_COOLDOWN_MS = 30_000;
-const TRIGGER_TTL_MS = 30_000;
-
+// NOTE: Trigger logic (rule matching, cooldowns, trigger creation) is now
+// handled by the evaluate_rules_and_trigger RPC function called from cvWorker.js
+// This function only saves audience profiles and faces to avoid duplicate trigger creation
 
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
@@ -41,14 +41,6 @@ serve(async (req) => {
     ...f,
     face_external_id: f.face_external_id ?? f.face_id ?? null,
   }));
-
-  // Pick a candidate face for triggering
-  // Prefer a new face if available
-  const triggeringFace =
-  normalizedFaces.find((f: any) => f.is_new === true && f.face_external_id)
-  || normalizedFaces.find((f: any) => f.face_external_id)
-  || null;
-
 
   // 1. Save audience profile
   const { data: profile, error: pErr } = await supabase
@@ -88,90 +80,16 @@ serve(async (req) => {
   }
 
 
-  // 3. Load rules
-  const { data: rules } = await supabase
-    .from("rules")
-    .select("*")
-    .eq("screen_id", screen_id)
-    .eq("is_active", true)
-    .order("priority", { ascending: false });
-;
-
-  let matchedRule = null;
-  for (const r of rules ?? []) {
-    if (
-      (r.min_people == null || people_count >= r.min_people) &&
-      (r.min_females == null || female_count >= r.min_females) &&
-      (r.min_males == null || male_count >= r.min_males)
-    ) {
-      matchedRule = r;
-      break;
-    }
-  }
-
-  if (!matchedRule) {
-    return new Response(JSON.stringify({ status: "no_match" }), { status: 200 });
-  }
-
-
-    // 2.5 Face cooldown enforcement (Milestone 2)
-  if (triggeringFace?.face_external_id) {
-    const now = new Date();
-
-    const { data: lastTrigger } = await supabase
-      .from("face_trigger_history")
-      .select("expires_at")
-      .eq("face_external_id", triggeringFace.face_external_id)
-      .eq("screen_id", screen_id)
-      .eq("rule_id", matchedRule.id)
-      .order("triggered_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (lastTrigger?.expires_at) {
-      const expiresAt = new Date(lastTrigger.expires_at);
-
-      if (expiresAt > now) {
-        // ⛔ Face is still in cooldown
-        return new Response(
-          JSON.stringify({
-            status: "cooldown_active",
-            face_external_id: triggeringFace.face_external_id,
-            cooldown_until: expiresAt.toISOString(),
-          }),
-          { status: 200 }
-        );
-      }
-    }
-  }
-
-
-  // 4. Trigger creation updated
-  const expires = new Date(Date.now() + TRIGGER_TTL_MS);
-
-  await supabase.from("triggers").insert({
-    screen_id,
-    media_id: matchedRule.output_media_id,
-    rule_id: matchedRule.id,
-    expires_at: expires.toISOString(),
-    trigger_profile: body,
-  });
-
-  // Record face trigger history for cooldown tracking
-  if (triggeringFace?.face_external_id) {
-    await supabase.from("face_trigger_history").insert({
-      face_external_id: triggeringFace.face_external_id,
-      screen_id,
-      rule_id: matchedRule.id,
-      media_id: matchedRule.output_media_id,
-      triggered_at: new Date().toISOString(),
-      expires_at: expires.toISOString(),
-    });
-  }
-
+  // NOTE: Trigger logic (rule matching, cooldowns, trigger creation) is now
+  // handled by the evaluate_rules_and_trigger RPC function called from cvWorker.js
+  // This function only saves audience profiles and faces to avoid duplicate trigger creation
 
   return new Response(
-    JSON.stringify({ status: "trigger_created", rule_id: matchedRule.id }),
+    JSON.stringify({ 
+      status: "profile_saved", 
+      profile_id: profile.id,
+      faces_count: normalizedFaces.length 
+    }),
     { status: 200 }
   );
 });

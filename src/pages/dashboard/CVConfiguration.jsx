@@ -1,5 +1,5 @@
 // src/pages/dashboard/CVConfiguration.jsx
-// CV Configuration Dashboard Page
+// CV Configuration Dashboard Page (Cleaned: toggles only)
 
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabaseClient';
@@ -18,7 +18,7 @@ function CVConfiguration() {
     aws_camera_identifier: '',
   });
 
-  // CV Config state
+  // CV Config state (only toggles now)
   const [cvConfigs, setCvConfigs] = useState({});
 
   useEffect(() => {
@@ -40,6 +40,7 @@ function CVConfiguration() {
 
       if (error) throw error;
       setScreens(data || []);
+
       if (data && data.length > 0 && !selectedScreen) {
         setSelectedScreen(data[0].id);
       }
@@ -53,6 +54,7 @@ function CVConfiguration() {
   const fetchCameras = async () => {
     if (!selectedScreen) return;
     setIsLoading(true);
+
     try {
       const { data, error } = await supabase
         .from('cameras')
@@ -63,19 +65,16 @@ function CVConfiguration() {
       if (error) throw error;
       setCameras(data || []);
 
-      // Initialize CV configs
+      // Initialize CV configs (ONLY toggles)
       const configs = {};
       data?.forEach((camera) => {
         const config = camera.cv_configs?.[0];
         configs[camera.id] = {
-          frame_interval_ms: config?.frame_interval_ms || 2000,
           enable_age: config?.enable_age !== false,
           enable_gender: config?.enable_gender !== false,
-          min_people_for_detection: config?.min_people_for_detection || 1,
-          min_dwell_to_trigger_sec: config?.min_dwell_to_trigger_sec || 5,
-          rearm_cooldown_sec: config?.rearm_cooldown_sec || 600,
         };
       });
+
       setCvConfigs(configs);
     } catch (error) {
       alert('Error fetching cameras: ' + error.message);
@@ -91,7 +90,9 @@ function CVConfiguration() {
     }
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
       const { data: camera, error: cameraError } = await supabase
@@ -108,20 +109,17 @@ function CVConfiguration() {
 
       if (cameraError) throw cameraError;
 
-      // Create default CV config
-      const { error: configError } = await supabase
-        .from('cv_configs')
-        .insert({
-          camera_id: camera.id,
-          frame_interval_ms: 2000,
+      // ✅ DO NOT create a default cv_configs row anymore
+      // Because numeric fields are redundant right now and toggles can be saved explicitly
+
+      // But we still keep local UI defaults
+      setCvConfigs((prev) => ({
+        ...prev,
+        [camera.id]: {
           enable_age: true,
           enable_gender: true,
-          min_people_for_detection: 1,
-          min_dwell_to_trigger_sec: 5,
-          rearm_cooldown_sec: 600,
-        });
-
-      if (configError) throw configError;
+        },
+      }));
 
       setNewCamera({ name: '', location: '', aws_camera_identifier: '' });
       setShowAddCamera(false);
@@ -133,33 +131,27 @@ function CVConfiguration() {
 
   const handleUpdateConfig = async (cameraId) => {
     try {
-      const config = cvConfigs[cameraId];
+      const config = cvConfigs[cameraId] || {};
       const camera = cameras.find((c) => c.id === cameraId);
       const existingConfig = camera?.cv_configs?.[0];
 
+      // ✅ ONLY save the toggles (age/gender)
+      const payload = {
+        camera_id: cameraId,
+        enable_age: config.enable_age !== false,
+        enable_gender: config.enable_gender !== false,
+        updated_at: new Date().toISOString(),
+      };
+
       if (existingConfig) {
-        // Update existing config
         const { error } = await supabase
           .from('cv_configs')
-          .update({
-            frame_interval_ms: config.frame_interval_ms,
-            enable_age: config.enable_age,
-            enable_gender: config.enable_gender,
-            min_people_for_detection: config.min_people_for_detection,
-            min_dwell_to_trigger_sec: config.min_dwell_to_trigger_sec,
-            rearm_cooldown_sec: config.rearm_cooldown_sec,
-            updated_at: new Date().toISOString(),
-          })
+          .update(payload)
           .eq('id', existingConfig.id);
 
         if (error) throw error;
       } else {
-        // Create new config
-        const { error } = await supabase.from('cv_configs').insert({
-          camera_id: cameraId,
-          ...config,
-        });
-
+        const { error } = await supabase.from('cv_configs').insert(payload);
         if (error) throw error;
       }
 
@@ -176,10 +168,7 @@ function CVConfiguration() {
     }
 
     try {
-      const { error } = await supabase
-        .from('cameras')
-        .delete()
-        .eq('id', cameraId);
+      const { error } = await supabase.from('cameras').delete().eq('id', cameraId);
 
       if (error) throw error;
       fetchCameras();
@@ -235,17 +224,13 @@ function CVConfiguration() {
                   <input
                     type="text"
                     value={newCamera.name}
-                    onChange={(e) =>
-                      setNewCamera({ ...newCamera, name: e.target.value })
-                    }
+                    onChange={(e) => setNewCamera({ ...newCamera, name: e.target.value })}
                     className="w-full border p-2 rounded"
                     placeholder="Front Camera"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Location
-                  </label>
+                  <label className="block text-sm font-medium mb-1">Location</label>
                   <input
                     type="text"
                     value={newCamera.location}
@@ -257,9 +242,7 @@ function CVConfiguration() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    AWS Camera ID
-                  </label>
+                  <label className="block text-sm font-medium mb-1">AWS Camera ID</label>
                   <input
                     type="text"
                     value={newCamera.aws_camera_identifier}
@@ -288,16 +271,11 @@ function CVConfiguration() {
             {cameras.map((camera) => {
               const config = cvConfigs[camera.id] || {};
               return (
-                <div
-                  key={camera.id}
-                  className="border rounded-lg p-6 bg-white shadow-sm"
-                >
+                <div key={camera.id} className="border rounded-lg p-6 bg-white shadow-sm">
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h3 className="text-lg font-semibold">{camera.name}</h3>
-                      <p className="text-sm text-gray-600">
-                        Location: {camera.location}
-                      </p>
+                      <p className="text-sm text-gray-600">Location: {camera.location}</p>
                       <p className="text-sm text-gray-600">
                         AWS ID: {camera.aws_camera_identifier}
                       </p>
@@ -310,91 +288,8 @@ function CVConfiguration() {
                     </button>
                   </div>
 
-                  {/* CV Configuration */}
+                  {/* CV Toggles only */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Frame Interval (ms)
-                      </label>
-                      <input
-                        type="number"
-                        value={config.frame_interval_ms || 2000}
-                        onChange={(e) =>
-                          setCvConfigs({
-                            ...cvConfigs,
-                            [camera.id]: {
-                              ...config,
-                              frame_interval_ms: parseInt(e.target.value),
-                            },
-                          })
-                        }
-                        className="w-full border p-2 rounded"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Min People for Detection
-                      </label>
-                      <input
-                        type="number"
-                        value={config.min_people_for_detection || 1}
-                        onChange={(e) =>
-                          setCvConfigs({
-                            ...cvConfigs,
-                            [camera.id]: {
-                              ...config,
-                              min_people_for_detection: parseInt(e.target.value),
-                            },
-                          })
-                        }
-                        className="w-full border p-2 rounded"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Min Dwell Time to Trigger (sec)
-                      </label>
-                      <input
-                        type="number"
-                        value={config.min_dwell_to_trigger_sec || 5}
-                        onChange={(e) =>
-                          setCvConfigs({
-                            ...cvConfigs,
-                            [camera.id]: {
-                              ...config,
-                              min_dwell_to_trigger_sec: parseInt(e.target.value),
-                            },
-                          })
-                        }
-                        className="w-full border p-2 rounded"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Rearm Cooldown (sec)
-                      </label>
-                      <input
-                        type="number"
-                        value={config.rearm_cooldown_sec || 600}
-                        onChange={(e) =>
-                          setCvConfigs({
-                            ...cvConfigs,
-                            [camera.id]: {
-                              ...config,
-                              rearm_cooldown_sec: parseInt(e.target.value),
-                            },
-                          })
-                        }
-                        className="w-full border p-2 rounded"
-                      />
-                      <p className="text-xs text-gray-500 mt-1">
-                        Time before same face can trigger again
-                      </p>
-                    </div>
-
                     <div>
                       <label className="flex items-center space-x-2">
                         <input
@@ -411,9 +306,7 @@ function CVConfiguration() {
                           }
                           className="rounded"
                         />
-                        <span className="text-sm font-medium">
-                          Enable Age Detection
-                        </span>
+                        <span className="text-sm font-medium">Enable Age Detection</span>
                       </label>
                     </div>
 
@@ -433,9 +326,7 @@ function CVConfiguration() {
                           }
                           className="rounded"
                         />
-                        <span className="text-sm font-medium">
-                          Enable Gender Detection
-                        </span>
+                        <span className="text-sm font-medium">Enable Gender Detection</span>
                       </label>
                     </div>
                   </div>
@@ -461,4 +352,3 @@ function CVConfiguration() {
 }
 
 export default CVConfiguration;
-
