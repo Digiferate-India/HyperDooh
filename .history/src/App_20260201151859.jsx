@@ -74,7 +74,7 @@ function App() {
 
             {/* CV routes */}
             <Route path="cv-configuration" element={<CVConfiguration />} />
-            {/* <Route path="rules-management" element={<RulesManagement />} /> */}
+            <Route path="rules-management" element={<RulesManagement />} />
           </Route>
         </Routes>
       </main>
