@@ -1,10 +1,6 @@
-// src/pages/AssignContent.jsx
-
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import MediaCard from '../components/MediaCard';
-// ✅ IMPORT THE NEW RULES MODAL
-import RulesManagerModal from '../components/RulesManagerModal';
 
 // --- Icons ---
 function FolderIcon() {
@@ -39,7 +35,6 @@ function DayPickerDropdown({ selectedDays, onChange }) {
     } else {
       newArray = [...selectedArray, dayId];
     }
-    // Sort days to keep them in order (optional but nice)
     const sortedDays = DAYS_OPTIONS
       .filter(d => newArray.includes(d.id))
       .map(d => d.id);
@@ -91,7 +86,7 @@ function DayPickerDropdown({ selectedDays, onChange }) {
   );
 }
 
-// --- Multi-Select for Screens ---
+// --- NEW COMPONENT: Multi-Select for Screens ---
 function ScreenMultiSelect({ screens, selectedIds, onChange }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -274,7 +269,10 @@ function BulkAssignForm({ folder, hasSelection, onClose, onSave }) {
 function AssignContent() {
   const [screens, setScreens] = useState([]);
   const [allMedia, setAllMedia] = useState([]);
+  
+  // ✅ UPDATED: State to hold multiple IDs
   const [selectedScreenIds, setSelectedScreenIds] = useState([]);
+  
   const [assignments, setAssignments] = useState(new Map());
   const [isLoading, setIsLoading] = useState(true);
   const [folders, setFolders] = useState([]);
@@ -283,12 +281,10 @@ function AssignContent() {
   const [isFetchingAssignments, setIsFetchingAssignments] = useState(false);
   const [expandedMediaId, setExpandedMediaId] = useState(null);
 
-  // ✅ New State for Rules Modal
-  const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
-
   useEffect(() => {
     async function fetchData() {
       try {
+        // ✅ UPDATED: Selecting 'area' and 'city' for the dropdown
         const { data: screensData, error: screensError } = await supabase.from('screens').select('id, custom_name, area, city');
         if (screensError) throw screensError;
         setScreens(screensData || []);
@@ -305,10 +301,10 @@ function AssignContent() {
     fetchData();
   }, []);
 
+  // ✅ UPDATED: Only fetch assignments if EXACTLY ONE screen is selected
   useEffect(() => {
-    // If multiple screens selected, we don't show individual assignments to avoid confusion
     if (selectedScreenIds.length !== 1) { 
-      setAssignments(new Map()); 
+      setAssignments(new Map()); // Clear view if multiple or none
       return; 
     }
     
@@ -336,6 +332,7 @@ function AssignContent() {
     setExpandedMediaId(prevId => (prevId === mediaId ? null : mediaId));
   };
 
+  // ✅ UPDATED: Bulk Assign handles multiple IDs
   const handleBulkAssignSave = async (formData) => {
     if (selectedScreenIds.length === 0 || !currentFolder) { 
       alert("Please select at least one screen and a folder first."); 
@@ -343,6 +340,7 @@ function AssignContent() {
     }
     
     try {
+      // Loop through all selected IDs
       const assignmentPromises = selectedScreenIds.map((screenId) => {
         return supabase.rpc('bulk_assign_folder_v2', {
           p_screen_id: screenId,
@@ -368,7 +366,7 @@ function AssignContent() {
       alert(`Success! Content assigned to ${selectedScreenIds.length} screens.`);
       setIsBulkModalOpen(false); 
       
-      // Refresh assignments if looking at a single screen
+      // Optionally refresh if only one screen was selected
       if (selectedScreenIds.length === 1) {
          const { data, error: fetchError } = await supabase.from('screens_media').select('*').eq('screen_id', selectedScreenIds[0]);
          if (!fetchError) {
@@ -383,33 +381,14 @@ function AssignContent() {
 
   if (isLoading) return <div className="p-6">Loading...</div>;
 
-  // ✅ Helper to get the screen name for the modal
-  const selectedScreenName = selectedScreenIds.length === 1 
-    ? screens.find(s => s.id === selectedScreenIds[0])?.custom_name 
-    : '';
-
   return (
     <div className="p-6 bg-white text-gray-900 min-h-screen">
-      <div className="mb-6 flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-bold mb-2">Assign Content</h1>
-          <p className="text-gray-600">Select screen(s) to assign media.</p>
-        </div>
-        
-        {/* ✅ Button to Open Rules Modal - Only visible if exactly 1 screen is selected */}
-        {selectedScreenIds.length === 1 && (
-           <button 
-             onClick={() => setIsRulesModalOpen(true)}
-             className="bg-indigo-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-indigo-700 flex items-center gap-2"
-           >
-             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-               <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
-             </svg>
-             Set Trigger Rules
-           </button>
-        )}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold mb-2">Assign Content</h1>
+        <p className="text-gray-600">Select screen(s) to assign media.</p>
       </div>
       
+      {/* ✅ UPDATED: New Multi-Select Component */}
       <div className="mb-8">
         <label className="text-lg font-semibold mb-2 block">Target Screens:</label>
         <ScreenMultiSelect 
@@ -419,7 +398,7 @@ function AssignContent() {
         />
         {selectedScreenIds.length > 1 && (
           <p className="text-xs text-amber-600 mt-2 font-medium">
-            Note: Viewing existing assignments and setting contextual rules is disabled when multiple screens are selected.
+            Note: Viewing existing assignments is disabled when multiple screens are selected.
           </p>
         )}
       </div>
@@ -442,7 +421,7 @@ function AssignContent() {
               <MediaCard 
                 key={mediaItem.id} 
                 mediaItem={mediaItem} 
-                screenId={selectedScreenIds.length === 1 ? selectedScreenIds[0] : null} 
+                screenId={selectedScreenIds.length === 1 ? selectedScreenIds[0] : null} // Only pass ID if singular
                 initialAssignment={assignments.get(mediaItem.id)} 
                 onAssignmentChange={handleAssignmentChange}
                 isExpanded={expandedMediaId === mediaItem.id}
@@ -485,15 +464,6 @@ function AssignContent() {
           hasSelection={selectedScreenIds.length > 0} 
           onClose={() => setIsBulkModalOpen(false)} 
           onSave={handleBulkAssignSave} 
-        />
-      )}
-
-      {/* ✅ RENDER RULES MODAL */}
-      {isRulesModalOpen && selectedScreenIds.length === 1 && (
-        <RulesManagerModal 
-          screenId={selectedScreenIds[0]} 
-          screenName={selectedScreenName}
-          onClose={() => setIsRulesModalOpen(false)}
         />
       )}
     </div>
