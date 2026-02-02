@@ -95,36 +95,26 @@ function DashboardHome() {
           count: ageBuckets[range]
         }));
 
-        // 4. PROCESS TRAFFIC (Grouped by Hour)
-        // This fixes the "Single Dot" issue by grouping data by hour (e.g. 10 AM, 11 AM)
-        const trafficMap = {};
+        // 4. PROCESS TRAFFIC (Impressions by Date)
+        const dailyMap = {};
 
         audienceLogs.forEach(log => {
           if (!log.created_at) return;
           
           const dateObj = new Date(log.created_at);
+          const dateKey = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
           
-          // Group Key: "Feb 2, 10 AM" (Unique per hour per day)
-          const groupKey = dateObj.toLocaleDateString('en-US', { 
-            month: 'short', day: 'numeric', hour: 'numeric', hour12: true 
-          });
-          
-          // Display Label: "10 AM" (Simpler for the X-Axis)
-          const timeLabel = dateObj.toLocaleTimeString('en-US', { hour: 'numeric', hour12: true });
-
-          if (!trafficMap[groupKey]) {
-            trafficMap[groupKey] = { 
-              fullLabel: groupKey, 
-              date: timeLabel, // This is what shows on the X-Axis
+          if (!dailyMap[dateKey]) {
+            dailyMap[dateKey] = { 
+              date: dateKey, 
               people: 0, 
-              // Store timestamp to sort the graph chronologically
-              sortTime: new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate(), dateObj.getHours()).getTime()
+              sortTime: dateObj.setHours(0,0,0,0) 
             };
           }
-          trafficMap[groupKey].people += (log.people_count || 0);
+          dailyMap[dateKey].people += (log.people_count || 0);
         });
 
-        const processedTrafficData = Object.values(trafficMap)
+        const processedTrafficData = Object.values(dailyMap)
           .sort((a, b) => a.sortTime - b.sortTime);
 
         setStats({
@@ -164,18 +154,14 @@ function DashboardHome() {
 
       {/* --- TRAFFIC CHART --- */}
       <div className="bg-white p-6 rounded-lg shadow mb-8">
-        <h2 className="text-lg font-semibold mb-4">Impressions Over Time</h2>
+        <h2 className="text-lg font-semibold mb-4">Impressions by Date</h2>
         <div style={{ width: '100%', height: 300 }}>
           <ResponsiveContainer>
             <LineChart data={trafficData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" /> 
+              <XAxis dataKey="date" />
               <YAxis allowDecimals={false} />
-              <Tooltip labelFormatter={(label, payload) => {
-                  // Show the full date in the tooltip (e.g., "Feb 2, 10 AM")
-                  if (payload && payload.length > 0) return payload[0].payload.fullLabel;
-                  return label;
-              }} />
+              <Tooltip />
               <Legend />
               <Line 
                 type="monotone" 
