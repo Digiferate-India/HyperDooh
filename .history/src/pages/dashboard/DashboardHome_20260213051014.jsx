@@ -33,7 +33,7 @@ function DashboardHome() {
 
         if (screenError) throw screenError;
 
-        // 2. Get Media Count
+        // Get Media Count
         const { count: mediaCount, error: mediaError } = await supabase
           .from('media')
           .select('*', { count: 'exact', head: true })
@@ -55,14 +55,19 @@ function DashboardHome() {
           if (profileError) throw profileError;
           audienceLogs = profileResult || [];
 
+          // 🧪 DEBUG STEP: Keep checking for female records
+          const { data: debugResult } = await supabase
+            .from('audience_faces')
+            .select('*')
+            .eq('gender', 'female')
+            .limit(10);
+          console.log("Debug - Female records found in DB:", debugResult);
+
           // B. Fetch FACES (Age/Gender & Table)
-          // Updated: Removed !inner to ensure all records (like the December female) are retrieved
           const { data: facesResult, error: facesError } = await supabase
             .from('audience_faces')
-            .select(`
-              *,
-              audience_profiles ( screen_id )
-            `) 
+            .select(`*, audience_profiles!inner ( screen_id )`)
+            .in('audience_profiles.screen_id', screenIds)
             .order('created_at', { ascending: false })
             .limit(1000); 
 
@@ -72,7 +77,7 @@ function DashboardHome() {
 
         // --- 📊 PROCESS DATA FOR CHARTS ---
         
-        // Traffic Logic
+        // 1. Traffic (Line Chart)
         const trafficMap = {};
         audienceLogs.forEach(log => {
           const dateObj = new Date(log.created_at);
@@ -84,7 +89,7 @@ function DashboardHome() {
         });
         setTrafficData(Object.values(trafficMap));
 
-        // Age & Gender Logic
+        // 2. Age & Gender (Bar/Pie Charts)
         const ageBuckets = { '1-18': 0, '19-25': 0, '26-35': 0, '36-50': 0, '51+': 0 };
         let totalFaceAge = 0;
         let validFaceCount = 0;
@@ -92,6 +97,7 @@ function DashboardHome() {
         let femaleCount = 0;
 
         allFaces.forEach(face => {
+            if (!face.is_new) return;
             const g = (face.gender || '').toLowerCase();
             if (g === 'male') maleCount++;
             else if (g === 'female') femaleCount++;
@@ -111,7 +117,7 @@ function DashboardHome() {
         setStats({
           screens: screenCount || 0,
           media: mediaCount || 0,
-          impressions: allFaces.length,
+          impressions: allFaces.filter(f => f.is_new).length,
           avgAge: validFaceCount > 0 ? Math.round(totalFaceAge / validFaceCount) : 0
         });
         setRecentFaces(allFaces.slice(0, 20)); 
@@ -140,6 +146,7 @@ function DashboardHome() {
         <StatCard title="Avg Audience Age" value={`${stats.avgAge} yrs`} />
       </div>
 
+      {/* Traffic Chart */}
       <div className="bg-white p-6 rounded-lg shadow mb-8">
         <h2 className="text-lg font-semibold mb-4">Impressions Over Time</h2>
         <div style={{ width: '100%', height: 300 }}>
@@ -156,6 +163,7 @@ function DashboardHome() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        {/* Age Chart */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-lg font-semibold mb-4">Age Demographics</h2>
           <div style={{ width: '100%', height: 300 }}>
@@ -171,6 +179,7 @@ function DashboardHome() {
           </div>
         </div>
 
+        {/* Gender Chart */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-lg font-semibold mb-4">Gender Split</h2>
           <div style={{ width: '100%', height: 300 }}>
@@ -187,6 +196,7 @@ function DashboardHome() {
         </div>
       </div>
 
+      {/* Recent Logs Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
