@@ -1,146 +1,164 @@
-import React from 'react';
+import React from "react";
 
 function PrivacyPolicy() {
   return (
     <div className="p-6 bg-white text-gray-900 min-h-screen">
       <div className="max-w-4xl mx-auto">
+
         <h1 className="mt-10 text-3xl font-bold mb-6">Privacy Policy</h1>
 
         <p className="mb-4">
-          Digiferate Consulting website is owned by Digiferate, which is a data
-          controller of your personal data.
+          This Privacy Policy explains how DIGIFERATE CONSULTING (OPC) PRIVATE LIMITED ("Digiferate", "we", "our", or "Service Provider") collects, uses, and protects information when you use our Android Mobile Application and Website.
         </p>
 
-        <p className="mb-4">
-          We have adopted this Privacy Policy, which determines how we are
-          processing the information collected by Digiferate Consulting, which
-          also provides the reasons why we must collect certain personal data
-          about you. Therefore, you must read this Privacy Policy before using
-          Digiferate Consulting website.
-        </p>
+        {/* ================= ANDROID APP SECTION ================= */}
 
-        <p className="mb-4">
-          We take care of your personal data and undertake to guarantee its
-          confidentiality and security.
-        </p>
-
-        <h2 className="text-2xl font-semibold mt-6 mb-3">
-          Personal information we collect:
+        <h2 className="text-2xl font-semibold mt-8 mb-3">
+          Section 1: Android Mobile Application
         </h2>
+
+        <h3 className="text-xl font-semibold mt-4 mb-2">
+          Permissions Used
+        </h3>
+
         <p className="mb-4">
-          When you visit the Digiferate Consulting, we automatically collect
-          certain information about your device, including information about
-          your web browser, IP address, time zone, and some of the installed
-          cookies on your device. Additionally, as you browse the Site, we
-          collect information about the individual web pages or products you
-          view, what websites or search terms referred you to the Site, and how
-          you interact with the Site. We refer to this automatically-collected
-          information as “Device Information.” Moreover, we might collect the
-          personal data you provide to us (including but not limited to Name,
-          Surname, Address, payment information, etc.) during registration to be
-          able to fulfill the agreement.
+          Our Android application uses the following permission:
         </p>
 
-        <h2 className="text-2xl font-semibold mt-6 mb-3">
-          Why do we process your data?
-        </h2>
-        <p className="mb-4">
-          Our top priority is customer data security, and, as such, we may
-          process only minimal user data, only as much as it is absolutely
-          necessary to maintain the website. Information collected automatically
-          is used only to identify potential cases of abuse and establish
-          statistical information regarding website usage. This statistical
-          information is not otherwise aggregated in such a way that it would
-          identify any particular user of the system.
-        </p>
-        <p className="mb-4">
-          You can visit the website without telling us who you are or revealing
-          any information, by which someone could identify you as a specific,
-          identifiable individual. If, however, you wish to use some of the
-          website’s features, or you wish to receive our newsletter or provide
-          other details by filling a form, you may provide personal data to us,
-          such as your email, first name, last name, city of residence,
-          organization, telephone number. You can choose not to provide us with
-          your personal data, but then you may not be able to take advantage of
-          some of the website’s features. For example, you won’t be able to
-          receive our Newsletter or contact us directly from the website. Users
-          who are uncertain about what information is mandatory are welcome to
-          contact us via digiferate@gmail.com.
-        </p>
-
-        <h2 className="text-2xl font-semibold mt-6 mb-3">Your rights:</h2>
-        <p className="mb-4">
-          If you are a European resident, you have the following rights related
-          to your personal data:
-        </p>
         <ul className="list-disc list-inside ml-4 mb-4 space-y-1">
-          <li>The right to be informed.</li>
-          <li>The right of access.</li>
-          <li>The right to rectification.</li>
-          <li>The right to erasure.</li>
-          <li>The right to restrict processing.</li>
-          <li>The right to data portability.</li>
-          <li>The right to object.</li>
           <li>
-            Rights in relation to automated decision-making and profiling.
+            <strong>Camera Permission (android.permission.CAMERA)</strong>
           </li>
         </ul>
+
         <p className="mb-4">
-          If you would like to exercise this right, please contact us through
-          the contact information below.
-        </p>
-        <p className="mb-4">
-          Additionally, if you are a European resident, we note that we are
-          processing your information in order to fulfill contracts we might
-          have with you (for example, if you make an order through the Site), or
-          otherwise to pursue our legitimate business interests listed above.
-          Additionally, please note that your information might be transferred
-          outside of Europe, including Canada and the United States.
+          The camera is used solely for computer vision and audience analytics purposes, including detecting general demographic attributes, motion, engagement levels, and content interaction patterns.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-6 mb-3">
-          Links to other websites:
+        <p className="mb-4">
+          The application does <strong>NOT</strong> collect, store, or transmit:
+        </p>
+
+        <ul className="list-disc list-inside ml-4 mb-4 space-y-1">
+          <li>Personally identifiable information</li>
+          <li>Facial recognition data</li>
+          <li>Biometric identifiers</li>
+          <li>Personal images or video recordings</li>
+        </ul>
+
+        <p className="mb-4 font-semibold">
+          This data is used only to target the right content to the right people and is not shared or used for any other purposes.
+        </p>
+
+        <h3 className="text-xl font-semibold mt-4 mb-2">
+          Information Collected
+        </h3>
+
+        <ul className="list-disc list-inside ml-4 mb-4 space-y-1">
+          <li>Device type and operating system</li>
+          <li>Application usage statistics</li>
+          <li>Anonymous engagement and interaction data</li>
+          <li>Performance and diagnostic information</li>
+        </ul>
+
+        <p className="mb-4">
+          All collected data is anonymized and used only for improving service functionality and delivering relevant content.
+        </p>
+
+        <h3 className="text-xl font-semibold mt-4 mb-2">
+          Data Storage and Security
+        </h3>
+
+        <p className="mb-4">
+          We implement appropriate technical and organizational safeguards to protect information. No personal images, biometric identifiers, or personal identity data are stored.
+        </p>
+
+        <h3 className="text-xl font-semibold mt-4 mb-2">
+          User Control
+        </h3>
+
+        <p className="mb-6">
+          Users may stop all data collection by uninstalling the Android application.
+        </p>
+
+
+        {/* ================= WEBSITE SECTION ================= */}
+
+        <h2 className="text-2xl font-semibold mt-8 mb-3">
+          Section 2: Website
         </h2>
+
         <p className="mb-4">
-          Our website may contain links to other websites that are not owned or
-          controlled by us. Please be aware that we are not responsible for such
-          other websites or third parties' privacy practices. We encourage you
-          to be aware when you leave our website and read the privacy statements
-          of each website that may collect personal information.
+          Digiferate Consulting website is owned by Digiferate, which is a data controller of your personal data.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-6 mb-3">
-          Information security:
-        </h2>
         <p className="mb-4">
-          We secure information you provide on computer servers in a controlled,
-          secure environment, protected from unauthorized access, use, or
-          disclosure. We keep reasonable administrative, technical, and physical
-          safeguards to protect against unauthorized access, use, modification,
-          and personal data disclosure in its control and custody. However, no
-  data transmission over the Internet or wireless network can be
-          guaranteed.
+          We have adopted this Privacy Policy, which determines how we process information collected by Digiferate Consulting and explains why we must collect certain personal data.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-6 mb-3">Legal disclosure:</h2>
+        <h3 className="text-xl font-semibold mt-4 mb-2">
+          Personal information we collect
+        </h3>
+
         <p className="mb-4">
-          We will disclose any information we collect, use or receive if
-          required or permitted by law, such as to comply with a subpoena or
-          similar legal process, and when we believe in good faith that
-          disclosure is necessary to protect our rights, protect your safety or
-          the safety of others, investigate fraud, or respond to a government
-          request.
+          When you visit our website, we automatically collect certain information about your device, including browser information, IP address, time zone, and cookies.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-6 mb-3">
-          Contact information:
-        </h2>
         <p className="mb-4">
-          If you would like to contact us to understand more about this Policy
-          or wish to contact us concerning any matter relating to individual
-          rights and your Personal Information, you may send an email to
-          digiferate@gmail.com.
+          We may also collect personal data such as email address and login credentials when you register or use our services.
         </p>
+
+        <h3 className="text-xl font-semibold mt-4 mb-2">
+          Why we process your data
+        </h3>
+
+        <p className="mb-4">
+          We process minimal data necessary to maintain and improve our services, ensure security, and provide proper functionality.
+        </p>
+
+        <h3 className="text-xl font-semibold mt-4 mb-2">
+          Information Security
+        </h3>
+
+        <p className="mb-4">
+          We secure information using appropriate technical and organizational safeguards to prevent unauthorized access, disclosure, or misuse.
+        </p>
+
+        <h3 className="text-xl font-semibold mt-4 mb-2">
+          Third-Party Services
+        </h3>
+
+        <p className="mb-4">
+          We may use trusted third-party services such as Supabase and analytics providers for authentication, database management, and analytics.
+        </p>
+
+        <h3 className="text-xl font-semibold mt-4 mb-2">
+          Your Rights
+        </h3>
+
+        <ul className="list-disc list-inside ml-4 mb-4 space-y-1">
+          <li>Right to access your data</li>
+          <li>Right to request correction</li>
+          <li>Right to request deletion</li>
+          <li>Right to restrict processing</li>
+        </ul>
+
+        <h3 className="text-xl font-semibold mt-4 mb-2">
+          Contact Information
+        </h3>
+
+        <p className="mb-4">
+          If you have questions regarding this Privacy Policy, contact us at:
+        </p>
+
+        <p className="mb-10 font-medium">
+          Email: nivedita@digiferate.in
+        </p>
+
+        <p className="text-sm text-gray-500">
+          Effective Date: February 13, 2026
+        </p>
+
       </div>
     </div>
   );
