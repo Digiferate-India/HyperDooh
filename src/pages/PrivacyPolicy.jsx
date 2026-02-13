@@ -10,7 +10,7 @@ function PrivacyPolicy() {
         {/* ================= ANDROID APP SECTION ================= */}
 
         <h2 className="text-2xl font-semibold mt-6 mb-3">
-          Section 1: Android Mobile Application
+          Android Mobile Application
         </h2>
 
         <p className="mb-4">
@@ -33,7 +33,7 @@ function PrivacyPolicy() {
         {/* ================= WEBSITE SECTION ================= */}
 
         <h2 className="text-2xl font-semibold mt-6 mb-3">
-          Section 2: Website
+          Website
         </h2>
 
         {/* ORIGINAL CONTENT STARTS HERE — UNCHANGED */}
