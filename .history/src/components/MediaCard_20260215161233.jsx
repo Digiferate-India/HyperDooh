@@ -202,16 +202,16 @@ function MediaCard({ mediaItem, screenId, initialAssignment, onAssignmentChange,
               </div>
             </div>
 
-            {/* <div className="grid grid-cols-2 gap-2"> */}
+            <div className="grid grid-cols-2 gap-2">
               {/* <div>
                 <label className="text-xs font-bold text-gray-500">Gender</label>
                 <select value={gender} onChange={(e) => setGender(e.target.value)} className="w-full p-1 border rounded text-xs"><option>All</option><option>Male</option><option>Female</option></select>
-              </div> */}
+              </div> */} */}
               {/* <div>
                 <label className="text-xs font-bold text-gray-500">Age</label>
                 <select value={ageGroup} onChange={(e) => setAgeGroup(e.target.value)} className="w-full p-1 border rounded text-xs"><option>All</option><option>18-25</option><option>26-40</option><option>41+</option></select>
-              </div> */}
-            {/* </div> */}
+              </div>
+            </div>
 
             <div>
               <label className="text-xs font-bold text-gray-500">Orientation</label>
