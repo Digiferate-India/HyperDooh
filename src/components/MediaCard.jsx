@@ -172,7 +172,7 @@ function MediaCard({ mediaItem, screenId, initialAssignment, onAssignmentChange,
               : 'bg-blue-50 text-white hover:bg-blue-100 border-blue-200'
           }`}
         >
-          {isExpanded ? 'Close Settings' : 'Set Triggers ⚙️'}
+          {isExpanded ? 'Close Settings' : 'Set Schedule ⚙️'}
         </button>
         
         {/* 3. Conditional Rendering: The Form */}
