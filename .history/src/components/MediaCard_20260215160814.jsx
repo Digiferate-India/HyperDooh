@@ -168,11 +168,11 @@ function MediaCard({ mediaItem, screenId, initialAssignment, onAssignmentChange,
           onClick={onToggle}
           className={`text-xs font-bold px-3 py-1 rounded border mb-2 transition-colors w-full ${
             isExpanded 
-              ? 'bg-gray-100 text-gray-600 hover:bg-gray-200' 
+              ? 'bg-gray-100 text-red-600 hover:bg-gray-200' 
               : 'bg-blue-50 text-white hover:bg-blue-100 border-blue-200'
           }`}
         >
-          {isExpanded ? 'Close Settings' : 'Set Triggers ⚙️'}
+          {isExpanded ? 'Close Settings' : 'Set Schedule ⚙️'}
         </button>
         
         {/* 3. Conditional Rendering: The Form */}
@@ -207,10 +207,10 @@ function MediaCard({ mediaItem, screenId, initialAssignment, onAssignmentChange,
                 <label className="text-xs font-bold text-gray-500">Gender</label>
                 <select value={gender} onChange={(e) => setGender(e.target.value)} className="w-full p-1 border rounded text-xs"><option>All</option><option>Male</option><option>Female</option></select>
               </div>
-              <div>
+              {/* <div>
                 <label className="text-xs font-bold text-gray-500">Age</label>
                 <select value={ageGroup} onChange={(e) => setAgeGroup(e.target.value)} className="w-full p-1 border rounded text-xs"><option>All</option><option>18-25</option><option>26-40</option><option>41+</option></select>
-              </div>
+              </div> */}
             </div>
 
             <div>
