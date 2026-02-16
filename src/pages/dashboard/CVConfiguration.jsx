@@ -1,5 +1,5 @@
 // src/pages/dashboard/CVConfiguration.jsx
-// CV Configuration Dashboard Page (Cleaned: toggles only)
+// CV Configuration Dashboard Page (Updated with trigger control switches)
 
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabaseClient';
@@ -18,8 +18,17 @@ function CVConfiguration() {
     aws_camera_identifier: '',
   });
 
-  // CV Config state (only toggles now)
+  // CV Config state (toggles + new trigger controls)
   const [cvConfigs, setCvConfigs] = useState({});
+
+  // Warning popup state
+  const [showWarning, setShowWarning] = useState(false);
+  const [warningType, setWarningType] = useState(''); // 'scheduling' or 'cv'
+  const [warningCameraId, setWarningCameraId] = useState(null);
+  const [dontShowAgain, setDontShowAgain] = useState({
+    scheduling: false,
+    cv: false,
+  });
 
   useEffect(() => {
     fetchScreens();
@@ -65,13 +74,15 @@ function CVConfiguration() {
       if (error) throw error;
       setCameras(data || []);
 
-      // Initialize CV configs (ONLY toggles)
+      // Initialize CV configs (toggles + new trigger controls)
       const configs = {};
       data?.forEach((camera) => {
         const config = camera.cv_configs?.[0];
         configs[camera.id] = {
           enable_age: config?.enable_age !== false,
           enable_gender: config?.enable_gender !== false,
+          allow_triggers_during_scheduled: config?.allow_triggers_during_scheduled === true,
+          enable_cv_triggers: config?.enable_cv_triggers !== false,
         };
       });
 
@@ -109,15 +120,14 @@ function CVConfiguration() {
 
       if (cameraError) throw cameraError;
 
-      // ✅ DO NOT create a default cv_configs row anymore
-      // Because numeric fields are redundant right now and toggles can be saved explicitly
-
-      // But we still keep local UI defaults
+      // Set local UI defaults for new camera
       setCvConfigs((prev) => ({
         ...prev,
         [camera.id]: {
           enable_age: true,
           enable_gender: true,
+          allow_triggers_during_scheduled: false,
+          enable_cv_triggers: true,
         },
       }));
 
@@ -135,11 +145,13 @@ function CVConfiguration() {
       const camera = cameras.find((c) => c.id === cameraId);
       const existingConfig = camera?.cv_configs?.[0];
 
-      // ✅ ONLY save the toggles (age/gender)
+      // Save all toggles (age/gender + trigger controls)
       const payload = {
         camera_id: cameraId,
         enable_age: config.enable_age !== false,
         enable_gender: config.enable_gender !== false,
+        allow_triggers_during_scheduled: config.allow_triggers_during_scheduled === true,
+        enable_cv_triggers: config.enable_cv_triggers !== false,
         updated_at: new Date().toISOString(),
       };
 
@@ -175,6 +187,58 @@ function CVConfiguration() {
     } catch (error) {
       alert('Error deleting camera: ' + error.message);
     }
+  };
+
+  const handleSwitchChange = (cameraId, field, newValue) => {
+    const config = cvConfigs[cameraId] || {};
+    
+    // Check if this is a change from default and if warning should be shown
+    const isSchedulingSwitch = field === 'allow_triggers_during_scheduled';
+    const isCvSwitch = field === 'enable_cv_triggers';
+    
+    if (isSchedulingSwitch && newValue === true && !dontShowAgain.scheduling) {
+      // Turning ON scheduling triggers (non-default)
+      setWarningType('scheduling');
+      setWarningCameraId(cameraId);
+      setShowWarning(true);
+      return;
+    }
+    
+    if (isCvSwitch && newValue === false && !dontShowAgain.cv) {
+      // Turning OFF CV triggers (non-default)
+      setWarningType('cv');
+      setWarningCameraId(cameraId);
+      setShowWarning(true);
+      return;
+    }
+    
+    // No warning needed, apply change directly
+    applyConfigChange(cameraId, field, newValue);
+  };
+
+  const applyConfigChange = (cameraId, field, newValue) => {
+    setCvConfigs({
+      ...cvConfigs,
+      [cameraId]: {
+        ...cvConfigs[cameraId],
+        [field]: newValue,
+      },
+    });
+  };
+
+  const handleWarningConfirm = () => {
+    if (warningCameraId) {
+      const field = warningType === 'scheduling' ? 'allow_triggers_during_scheduled' : 'enable_cv_triggers';
+      const newValue = warningType === 'scheduling' ? true : false;
+      applyConfigChange(warningCameraId, field, newValue);
+    }
+    setShowWarning(false);
+    setWarningCameraId(null);
+  };
+
+  const handleWarningCancel = () => {
+    setShowWarning(false);
+    setWarningCameraId(null);
   };
 
   if (isLoading && !selectedScreen) {
@@ -288,8 +352,8 @@ function CVConfiguration() {
                     </button>
                   </div>
 
-                  {/* CV Toggles only */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* CV Detection Toggles */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                       <label className="flex items-center space-x-2">
                         <input
@@ -331,6 +395,100 @@ function CVConfiguration() {
                     </div>
                   </div>
 
+                  {/* New Trigger Control Switches */}
+                  <div className="border-t pt-4 mt-4">
+                    <h4 className="text-sm font-semibold mb-3 text-gray-700">Trigger Behavior Controls</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      
+                      {/* Enable CV Triggers Switch */}
+                      <div>
+                        <div className="flex items-center space-x-3">
+                          <button
+                            type="button"
+                            onClick={() => handleSwitchChange(camera.id, 'enable_cv_triggers', !(config.enable_cv_triggers !== false))}
+                            className={`relative inline-flex items-center h-10 rounded-full w-20 transition-colors duration-200 focus:outline-none ${
+                              config.enable_cv_triggers !== false ? 'bg-green-500' : 'bg-gray-300'
+                            }`}
+                          >
+                            <span className="sr-only">Enable CV Triggers</span>
+                            <span
+                              className={`inline-block w-8 h-8 transform rounded-full bg-white shadow-lg transition-transform duration-200 ${
+                                config.enable_cv_triggers !== false ? 'translate-x-11' : 'translate-x-1'
+                              }`}
+                            />
+                            <span
+                              className={`absolute inset-0 flex items-center justify-center text-xs font-bold text-white transition-opacity duration-200 ${
+                                config.enable_cv_triggers !== false ? 'opacity-100' : 'opacity-0'
+                              }`}
+                            >
+                              ON
+                            </span>
+                            <span
+                              className={`absolute inset-0 flex items-center justify-center text-xs font-bold text-gray-600 transition-opacity duration-200 ${
+                                config.enable_cv_triggers !== false ? 'opacity-0' : 'opacity-100'
+                              }`}
+                            >
+                              OFF
+                            </span>
+                          </button>
+                          <span className="text-sm font-medium">Enable CV Triggers</span>
+                          <div className="relative group">
+                            <svg className="w-4 h-4 text-gray-400 cursor-help" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                            </svg>
+                            <div className="invisible group-hover:visible absolute left-0 top-6 w-64 p-2 bg-gray-800 text-white text-xs rounded shadow-lg z-10">
+                              Controls whether CV triggers are active during normal content playlist. Default: ON
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Allow Triggers During Scheduled Content Switch */}
+                      <div>
+                        <div className="flex items-center space-x-3">
+                          <button
+                            type="button"
+                            onClick={() => handleSwitchChange(camera.id, 'allow_triggers_during_scheduled', !(config.allow_triggers_during_scheduled === true))}
+                            className={`relative inline-flex items-center h-10 rounded-full w-20 transition-colors duration-200 focus:outline-none ${
+                              config.allow_triggers_during_scheduled === true ? 'bg-green-500' : 'bg-gray-300'
+                            }`}
+                          >
+                            <span className="sr-only">Allow Triggers During Scheduled Content</span>
+                            <span
+                              className={`inline-block w-8 h-8 transform rounded-full bg-white shadow-lg transition-transform duration-200 ${
+                                config.allow_triggers_during_scheduled === true ? 'translate-x-11' : 'translate-x-1'
+                              }`}
+                            />
+                            <span
+                              className={`absolute inset-0 flex items-center justify-center text-xs font-bold text-white transition-opacity duration-200 ${
+                                config.allow_triggers_during_scheduled === true ? 'opacity-100' : 'opacity-0'
+                              }`}
+                            >
+                              ON
+                            </span>
+                            <span
+                              className={`absolute inset-0 flex items-center justify-center text-xs font-bold text-gray-600 transition-opacity duration-200 ${
+                                config.allow_triggers_during_scheduled === true ? 'opacity-0' : 'opacity-100'
+                              }`}
+                            >
+                              OFF
+                            </span>
+                          </button>
+                          <span className="text-sm font-medium">Allow Triggers During Scheduled Content</span>
+                          <div className="relative group">
+                            <svg className="w-4 h-4 text-gray-400 cursor-help" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                            </svg>
+                            <div className="invisible group-hover:visible absolute left-0 top-6 w-64 p-2 bg-gray-800 text-white text-xs rounded shadow-lg z-10">
+                              Controls whether CV triggers can interrupt scheduled content. Default: OFF (triggers only work during normal playlist)
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
                   <button
                     onClick={() => handleUpdateConfig(camera.id)}
                     className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
@@ -346,6 +504,50 @@ function CVConfiguration() {
             <p className="text-gray-500">No cameras configured for this screen.</p>
           )}
         </>
+      )}
+
+      {/* Warning Popup Modal */}
+      {showWarning && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+            <h3 className="text-lg font-semibold mb-4">Warning</h3>
+            <p className="text-gray-700 mb-4">
+              {warningType === 'scheduling'
+                ? 'Turning this ON will make CV triggers active even during scheduled content. This means triggered content can interrupt your scheduled programming.'
+                : 'Turning this OFF will deactivate CV triggers during normal playlist playback. Triggered content will not be shown during regular content rotation.'}
+            </p>
+            <div className="mb-6">
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={dontShowAgain[warningType]}
+                  onChange={(e) =>
+                    setDontShowAgain({
+                      ...dontShowAgain,
+                      [warningType]: e.target.checked,
+                    })
+                  }
+                  className="rounded"
+                />
+                <span className="text-sm text-gray-600">Don't show this again</span>
+              </label>
+            </div>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={handleWarningCancel}
+                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleWarningConfirm}
+                className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
