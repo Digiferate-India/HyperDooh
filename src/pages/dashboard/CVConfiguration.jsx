@@ -4,77 +4,82 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 
-// Modern 3D Toggle Switch Component
+// Modern 3D Toggle Switch Component with ON/OFF text
 const ToggleSwitch = ({ isOn, onToggle, label, tooltip }) => {
+  const switchStyle = {
+    position: 'relative',
+    display: 'inline-flex',
+    alignItems: 'center',
+    height: '36px',
+    width: '68px',
+    borderRadius: '18px',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    background: isOn 
+      ? 'linear-gradient(180deg, #34D399 0%, #10B981 100%)' 
+      : 'linear-gradient(180deg, #64748B 0%, #475569 100%)',
+    boxShadow: isOn
+      ? 'inset 0 2px 4px rgba(255,255,255,0.3), 0 4px 8px rgba(16,185,129,0.3)'
+      : 'inset 0 2px 4px rgba(255,255,255,0.1), 0 4px 8px rgba(0,0,0,0.2)',
+    border: 'none',
+    outline: 'none',
+    padding: '0',
+    overflow: 'hidden',
+  };
+
+  const knobStyle = {
+    position: 'absolute',
+    top: '3px',
+    width: '30px',
+    height: '30px',
+    borderRadius: '50%',
+    background: 'linear-gradient(180deg, #FFFFFF 0%, #F1F5F9 100%)',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.2), inset 0 -2px 4px rgba(0,0,0,0.05)',
+    transition: 'left 0.3s ease',
+    left: isOn ? '35px' : '3px',
+  };
+
+  const onTextStyle = {
+    position: 'absolute',
+    left: '10px',
+    fontSize: '11px',
+    fontWeight: '700',
+    color: 'white',
+    opacity: isOn ? 1 : 0,
+    transition: 'opacity 0.2s ease',
+    textShadow: '0 1px 1px rgba(0,0,0,0.1)',
+  };
+
+  const offTextStyle = {
+    position: 'absolute',
+    right: '8px',
+    fontSize: '11px',
+    fontWeight: '700',
+    color: '#1e293b',
+    opacity: isOn ? 0 : 1,
+    transition: 'opacity 0.2s ease',
+  };
+
   return (
-    <div className="flex items-center space-x-3">
+    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
       <button
         type="button"
         onClick={onToggle}
-        className={`
-          relative inline-flex items-center h-10 w-[72px] rounded-full
-          transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2
-          ${isOn 
-            ? 'bg-gradient-to-b from-emerald-400 to-emerald-500 shadow-[inset_0_2px_4px_rgba(255,255,255,0.3),0_4px_8px_rgba(16,185,129,0.3)] focus:ring-emerald-500' 
-            : 'bg-gradient-to-b from-slate-500 to-slate-600 shadow-[inset_0_2px_4px_rgba(255,255,255,0.1),0_4px_8px_rgba(0,0,0,0.2)] focus:ring-slate-400'
-          }
-        `}
-        aria-checked={isOn}
+        style={switchStyle}
         role="switch"
+        aria-checked={isOn}
       >
-        <span className="sr-only">{label}</span>
+        {/* ON Text (visible when ON) */}
+        <span style={onTextStyle}>ON</span>
         
-        {/* Checkmark Icon (visible when ON) */}
-        <span
-          className={`
-            absolute left-2.5 flex items-center justify-center
-            transition-opacity duration-200
-            ${isOn ? 'opacity-100' : 'opacity-0'}
-          `}
-        >
-          <svg 
-            className="w-5 h-5 text-white drop-shadow-sm" 
-            fill="none" 
-            viewBox="0 0 24 24" 
-            stroke="currentColor" 
-            strokeWidth={3}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-        </span>
-        
-        {/* X Icon (visible when OFF) */}
-        <span
-          className={`
-            absolute right-2.5 flex items-center justify-center
-            transition-opacity duration-200
-            ${isOn ? 'opacity-0' : 'opacity-100'}
-          `}
-        >
-          <svg 
-            className="w-4 h-4 text-slate-400" 
-            fill="none" 
-            viewBox="0 0 24 24" 
-            stroke="currentColor" 
-            strokeWidth={3}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </span>
+        {/* OFF Text (visible when OFF) */}
+        <span style={offTextStyle}>OFF</span>
         
         {/* Toggle Knob */}
-        <span
-          className={`
-            inline-block w-8 h-8 transform rounded-full
-            bg-gradient-to-b from-white to-gray-100
-            shadow-[0_2px_8px_rgba(0,0,0,0.2),inset_0_-2px_4px_rgba(0,0,0,0.05)]
-            transition-transform duration-300 ease-in-out
-            ${isOn ? 'translate-x-9' : 'translate-x-1'}
-          `}
-        />
+        <span style={knobStyle}></span>
       </button>
       
-      <span className="text-sm font-medium">{label}</span>
+      <span style={{ fontSize: '14px', fontWeight: '500' }}>{label}</span>
       
       {tooltip && (
         <div className="relative group">
