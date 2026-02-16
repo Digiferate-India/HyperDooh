@@ -1,48 +1,91 @@
 // src/pages/dashboard/CVConfiguration.jsx
+// CV Configuration Dashboard Page (Updated with trigger control switches)
+
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 
-// --- Reusable Toggle Switch Component ---
-const ToggleSwitch = ({ isOn, onToggle, id, label }) => {
+// Modern 3D Toggle Switch Component
+const ToggleSwitch = ({ isOn, onToggle, label, tooltip }) => {
   return (
-    <div className="flex items-center justify-between py-1">
-      {/* Label Text */}
-      <span className="text-sm font-semibold text-gray-700 select-none mr-3">
-        {label}
-      </span>
-
-      {/* Switch Container */}
-      <div
+    <div className="flex items-center space-x-3">
+      <button
+        type="button"
         onClick={onToggle}
-        className={`relative w-16 h-9 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 ease-in-out ${
-          isOn ? 'bg-emerald-500' : 'bg-slate-700'
-        }`}
+        className={`
+          relative inline-flex items-center h-10 w-[72px] rounded-full
+          transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2
+          ${isOn 
+            ? 'bg-gradient-to-b from-emerald-400 to-emerald-500 shadow-[inset_0_2px_4px_rgba(255,255,255,0.3),0_4px_8px_rgba(16,185,129,0.3)] focus:ring-emerald-500' 
+            : 'bg-gradient-to-b from-slate-500 to-slate-600 shadow-[inset_0_2px_4px_rgba(255,255,255,0.1),0_4px_8px_rgba(0,0,0,0.2)] focus:ring-slate-400'
+          }
+        `}
+        aria-checked={isOn}
+        role="switch"
       >
-        {/* ON Text (Visible when ON, positioned Left) */}
+        <span className="sr-only">{label}</span>
+        
+        {/* Checkmark Icon (visible when ON) */}
         <span
-          className={`absolute left-2 text-[10px] font-bold text-white uppercase tracking-wider transition-opacity duration-300 ${
-            isOn ? 'opacity-100' : 'opacity-0'
-          }`}
+          className={`
+            absolute left-2.5 flex items-center justify-center
+            transition-opacity duration-200
+            ${isOn ? 'opacity-100' : 'opacity-0'}
+          `}
         >
-          ON
+          <svg 
+            className="w-5 h-5 text-white drop-shadow-sm" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor" 
+            strokeWidth={3}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
         </span>
-
-        {/* OFF Text (Visible when OFF, positioned Right) */}
+        
+        {/* X Icon (visible when OFF) */}
         <span
-          className={`absolute right-2 text-[10px] font-bold text-gray-300 uppercase tracking-wider transition-opacity duration-300 ${
-            isOn ? 'opacity-0' : 'opacity-100'
-          }`}
+          className={`
+            absolute right-2.5 flex items-center justify-center
+            transition-opacity duration-200
+            ${isOn ? 'opacity-0' : 'opacity-100'}
+          `}
         >
-          OFF
+          <svg 
+            className="w-4 h-4 text-slate-400" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor" 
+            strokeWidth={3}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
         </span>
-
-        {/* The Knob (White Circle) */}
-        <div
-          className={`bg-white w-7 h-7 rounded-full shadow-md transform transition-transform duration-300 ease-in-out z-10 ${
-            isOn ? 'translate-x-7' : 'translate-x-0'
-          }`}
+        
+        {/* Toggle Knob */}
+        <span
+          className={`
+            inline-block w-8 h-8 transform rounded-full
+            bg-gradient-to-b from-white to-gray-100
+            shadow-[0_2px_8px_rgba(0,0,0,0.2),inset_0_-2px_4px_rgba(0,0,0,0.05)]
+            transition-transform duration-300 ease-in-out
+            ${isOn ? 'translate-x-9' : 'translate-x-1'}
+          `}
         />
-      </div>
+      </button>
+      
+      <span className="text-sm font-medium">{label}</span>
+      
+      {tooltip && (
+        <div className="relative group">
+          <svg className="w-4 h-4 text-gray-400 cursor-help" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+          </svg>
+          <div className="invisible group-hover:visible absolute left-0 top-6 w-64 p-2 bg-gray-800 text-white text-xs rounded shadow-lg z-10">
+            {tooltip}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -54,16 +97,19 @@ function CVConfiguration() {
   const [isLoading, setIsLoading] = useState(true);
   const [showAddCamera, setShowAddCamera] = useState(false);
 
+  // New camera form state
   const [newCamera, setNewCamera] = useState({
     name: '',
     location: '',
     aws_camera_identifier: '',
   });
 
+  // CV Config state (toggles + new trigger controls)
   const [cvConfigs, setCvConfigs] = useState({});
 
+  // Warning popup state
   const [showWarning, setShowWarning] = useState(false);
-  const [warningType, setWarningType] = useState(''); 
+  const [warningType, setWarningType] = useState(''); // 'scheduling' or 'cv'
   const [warningCameraId, setWarningCameraId] = useState(null);
   const [dontShowAgain, setDontShowAgain] = useState({
     scheduling: false,
@@ -114,6 +160,7 @@ function CVConfiguration() {
       if (error) throw error;
       setCameras(data || []);
 
+      // Initialize CV configs (toggles + new trigger controls)
       const configs = {};
       data?.forEach((camera) => {
         const config = camera.cv_configs?.[0];
@@ -140,7 +187,9 @@ function CVConfiguration() {
     }
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
       const { data: camera, error: cameraError } = await supabase
@@ -157,6 +206,7 @@ function CVConfiguration() {
 
       if (cameraError) throw cameraError;
 
+      // Set local UI defaults for new camera
       setCvConfigs((prev) => ({
         ...prev,
         [camera.id]: {
@@ -181,6 +231,7 @@ function CVConfiguration() {
       const camera = cameras.find((c) => c.id === cameraId);
       const existingConfig = camera?.cv_configs?.[0];
 
+      // Save all toggles (age/gender + trigger controls)
       const payload = {
         camera_id: cameraId,
         enable_age: config.enable_age !== false,
@@ -216,6 +267,7 @@ function CVConfiguration() {
 
     try {
       const { error } = await supabase.from('cameras').delete().eq('id', cameraId);
+
       if (error) throw error;
       fetchCameras();
     } catch (error) {
@@ -224,23 +276,29 @@ function CVConfiguration() {
   };
 
   const handleSwitchChange = (cameraId, field, newValue) => {
+    const config = cvConfigs[cameraId] || {};
+
+    // Check if this is a change from default and if warning should be shown
     const isSchedulingSwitch = field === 'allow_triggers_during_scheduled';
     const isCvSwitch = field === 'enable_cv_triggers';
-    
+
     if (isSchedulingSwitch && newValue === true && !dontShowAgain.scheduling) {
+      // Turning ON scheduling triggers (non-default)
       setWarningType('scheduling');
       setWarningCameraId(cameraId);
       setShowWarning(true);
       return;
     }
-    
+
     if (isCvSwitch && newValue === false && !dontShowAgain.cv) {
+      // Turning OFF CV triggers (non-default)
       setWarningType('cv');
       setWarningCameraId(cameraId);
       setShowWarning(true);
       return;
     }
-    
+
+    // No warning needed, apply change directly
     applyConfigChange(cameraId, field, newValue);
   };
 
@@ -274,216 +332,239 @@ function CVConfiguration() {
   }
 
   return (
-    <div className="p-6 bg-gray-50 text-gray-900 min-h-screen">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-gray-800">CV Configuration</h1>
+    <div className="p-6 bg-white text-gray-900 min-h-screen">
+      <h1 className="text-2xl font-bold mb-6">CV Configuration</h1>
 
-        {/* Screen Selection */}
-        <div className="mb-8 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-          <label className="block text-sm font-semibold text-gray-600 mb-2 uppercase tracking-wide">Select Screen</label>
-          <select
-            value={selectedScreen}
-            onChange={(e) => setSelectedScreen(e.target.value)}
-            className="border border-gray-300 p-3 rounded-lg w-full max-w-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-          >
-            <option value="">Select a screen</option>
-            {screens.map((screen) => (
-              <option key={screen.id} value={screen.id}>
-                {screen.custom_name}
-              </option>
-            ))}
-          </select>
-        </div>
+      {/* Screen Selection */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium mb-2">Select Screen:</label>
+        <select
+          value={selectedScreen}
+          onChange={(e) => setSelectedScreen(e.target.value)}
+          className="border p-2 rounded-lg w-full max-w-md"
+        >
+          <option value="">Select a screen</option>
+          {screens.map((screen) => (
+            <option key={screen.id} value={screen.id}>
+              {screen.custom_name}
+            </option>
+          ))}
+        </select>
+      </div>
 
-        {selectedScreen && (
-          <>
-            <div className="mb-8">
+      {selectedScreen && (
+        <>
+          {/* Add Camera Button */}
+          <div className="mb-6">
+            <button
+              onClick={() => setShowAddCamera(!showAddCamera)}
+              className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800"
+            >
+              {showAddCamera ? 'Cancel' : '+ Add Camera'}
+            </button>
+          </div>
+
+          {/* Add Camera Form */}
+          {showAddCamera && (
+            <div className="mb-6 p-4 border rounded-lg bg-gray-50">
+              <h3 className="font-semibold mb-4">Add New Camera</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Name</label>
+                  <input
+                    type="text"
+                    value={newCamera.name}
+                    onChange={(e) => setNewCamera({ ...newCamera, name: e.target.value })}
+                    className="w-full border p-2 rounded"
+                    placeholder="Front Camera"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Location</label>
+                  <input
+                    type="text"
+                    value={newCamera.location}
+                    onChange={(e) =>
+                      setNewCamera({ ...newCamera, location: e.target.value })
+                    }
+                    className="w-full border p-2 rounded"
+                    placeholder="Entrance"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">AWS Camera ID</label>
+                  <input
+                    type="text"
+                    value={newCamera.aws_camera_identifier}
+                    onChange={(e) =>
+                      setNewCamera({
+                        ...newCamera,
+                        aws_camera_identifier: e.target.value,
+                      })
+                    }
+                    className="w-full border p-2 rounded"
+                    placeholder="cam-001"
+                  />
+                </div>
+              </div>
               <button
-                onClick={() => setShowAddCamera(!showAddCamera)}
-                className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
-                  showAddCamera 
-                  ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' 
-                  : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md'
-                }`}
+                onClick={handleAddCamera}
+                className="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
               >
-                {showAddCamera ? 'Cancel' : '+ Add Camera'}
+                Add Camera
               </button>
             </div>
+          )}
 
-            {showAddCamera && (
-              <div className="mb-8 p-6 border border-gray-200 rounded-xl bg-white shadow-sm">
-                <h3 className="text-lg font-bold mb-5 text-gray-800">Add New Camera</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-500 mb-2 uppercase">Name</label>
-                    <input
-                      type="text"
-                      value={newCamera.name}
-                      onChange={(e) => setNewCamera({ ...newCamera, name: e.target.value })}
-                      className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                      placeholder="Front Camera"
-                    />
+          {/* Cameras List */}
+          <div className="space-y-6">
+            {cameras.map((camera) => {
+              const config = cvConfigs[camera.id] || {};
+              return (
+                <div key={camera.id} className="border rounded-lg p-6 bg-white shadow-sm">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold">{camera.name}</h3>
+                      <p className="text-sm text-gray-600">Location: {camera.location}</p>
+                      <p className="text-sm text-gray-600">
+                        AWS ID: {camera.aws_camera_identifier}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteCamera(camera.id)}
+                      className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800"
+                    >
+                      Delete
+                    </button>
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-500 mb-2 uppercase">Location</label>
-                    <input
-                      type="text"
-                      value={newCamera.location}
-                      onChange={(e) => setNewCamera({ ...newCamera, location: e.target.value })}
-                      className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                      placeholder="Entrance"
-                    />
+
+                  {/* CV Detection Toggles */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          checked={config.enable_age !== false}
+                          onChange={(e) =>
+                            setCvConfigs({
+                              ...cvConfigs,
+                              [camera.id]: {
+                                ...config,
+                                enable_age: e.target.checked,
+                              },
+                            })
+                          }
+                          className="rounded"
+                        />
+                        <span className="text-sm font-medium">Enable Age Detection</span>
+                      </label>
+                    </div>
+
+                    <div>
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          checked={config.enable_gender !== false}
+                          onChange={(e) =>
+                            setCvConfigs({
+                              ...cvConfigs,
+                              [camera.id]: {
+                                ...config,
+                                enable_gender: e.target.checked,
+                              },
+                            })
+                          }
+                          className="rounded"
+                        />
+                        <span className="text-sm font-medium">Enable Gender Detection</span>
+                      </label>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-500 mb-2 uppercase">AWS Camera ID</label>
-                    <input
-                      type="text"
-                      value={newCamera.aws_camera_identifier}
-                      onChange={(e) => setNewCamera({ ...newCamera, aws_camera_identifier: e.target.value })}
-                      className="w-full border border-gray-300 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                      placeholder="cam-001"
-                    />
+
+                  {/* New Trigger Control Switches with Modern 3D Design */}
+                  <div className="border-t pt-4 mt-4">
+                    <h4 className="text-sm font-semibold mb-3 text-gray-700">Trigger Behavior Controls</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                      {/* Enable CV Triggers Switch */}
+                      <ToggleSwitch
+                        isOn={config.enable_cv_triggers !== false}
+                        onToggle={() => handleSwitchChange(camera.id, 'enable_cv_triggers', !(config.enable_cv_triggers !== false))}
+                        label="Enable CV Triggers"
+                        tooltip="Controls whether CV triggers are active during normal content playlist. Default: ON"
+                      />
+
+                      {/* Allow Triggers During Scheduled Content Switch */}
+                      <ToggleSwitch
+                        isOn={config.allow_triggers_during_scheduled === true}
+                        onToggle={() => handleSwitchChange(camera.id, 'allow_triggers_during_scheduled', !(config.allow_triggers_during_scheduled === true))}
+                        label="Allow Triggers During Scheduled Content"
+                        tooltip="Controls whether CV triggers can interrupt scheduled content. Default: OFF (triggers only work during normal playlist)"
+                      />
+
+                    </div>
                   </div>
+
+                  <button
+                    onClick={() => handleUpdateConfig(camera.id)}
+                    className="mt-4 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800"
+                  >
+                    Save Configuration
+                  </button>
                 </div>
-                <button
-                  onClick={handleAddCamera}
-                  className="mt-6 bg-green-600 text-white px-8 py-2.5 rounded-lg font-medium hover:bg-green-700 transition-colors shadow-sm"
-                >
-                  Add Camera
-                </button>
-              </div>
-            )}
+              );
+            })}
+          </div>
 
-            <div className="grid gap-6">
-              {cameras.map((camera) => {
-                const config = cvConfigs[camera.id] || {};
-                return (
-                  <div key={camera.id} className="border border-gray-100 rounded-xl p-6 bg-white shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start mb-6 pb-4 border-b border-gray-50">
-                      <div>
-                        <h3 className="text-lg font-bold text-gray-800">{camera.name}</h3>
-                        <p className="text-sm text-gray-500 mt-1">
-                           {camera.location} <span className="mx-2">•</span> <span className="bg-gray-100 px-2 py-0.5 rounded text-xs font-medium text-gray-600">{camera.aws_camera_identifier}</span>
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => handleDeleteCamera(camera.id)}
-                        className="text-sm font-semibold text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1.5 rounded transition-colors"
-                      >
-                        Delete
-                      </button>
-                    </div>
+          {cameras.length === 0 && (
+            <p className="text-gray-500">No cameras configured for this screen.</p>
+          )}
+        </>
+      )}
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      {/* Standard Checkboxes for Detection */}
-                      <div className="space-y-4">
-                        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Detection Settings</h4>
-                        <label className="flex items-center space-x-3 cursor-pointer group">
-                          <input
-                            type="checkbox"
-                            checked={config.enable_age !== false}
-                            onChange={(e) => setCvConfigs({ ...cvConfigs, [camera.id]: { ...config, enable_age: e.target.checked } })}
-                            className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                          />
-                          <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">Enable Age Detection</span>
-                        </label>
-                        <label className="flex items-center space-x-3 cursor-pointer group">
-                          <input
-                            type="checkbox"
-                            checked={config.enable_gender !== false}
-                            onChange={(e) => setCvConfigs({ ...cvConfigs, [camera.id]: { ...config, enable_gender: e.target.checked } })}
-                            className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                          />
-                          <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">Enable Gender Detection</span>
-                        </label>
-                      </div>
-
-                      {/* New Toggle Switches */}
-                      <div className="space-y-5">
-                         <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Trigger Controls</h4>
-                         
-                         {/* CV Triggers Switch */}
-                         <div>
-                           <ToggleSwitch 
-                              label="Enable CV Triggers"
-                              isOn={config.enable_cv_triggers !== false} 
-                              onToggle={() => handleSwitchChange(camera.id, 'enable_cv_triggers', !(config.enable_cv_triggers !== false))}
-                           />
-                           <p className="text-[11px] text-gray-400 mt-1 ml-0.5">Controls if triggers are active during normal playlist playback.</p>
-                         </div>
-
-                         {/* Interrupt Schedule Switch */}
-                         <div>
-                           <ToggleSwitch 
-                              label="Allow Schedule Interruption"
-                              isOn={config.allow_triggers_during_scheduled === true} 
-                              onToggle={() => handleSwitchChange(camera.id, 'allow_triggers_during_scheduled', !(config.allow_triggers_during_scheduled === true))}
-                           />
-                           <p className="text-[11px] text-gray-400 mt-1 ml-0.5">If enabled, triggers can interrupt priority scheduled content.</p>
-                         </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-8 pt-4 border-t border-gray-50 flex justify-end">
-                      <button
-                        onClick={() => handleUpdateConfig(camera.id)}
-                        className="bg-gray-900 text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-black transition-all shadow-sm active:scale-95"
-                      >
-                        Save Configuration
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
+      {/* Warning Popup Modal */}
+      {showWarning && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+            <h3 className="text-lg font-semibold mb-4">Warning</h3>
+            <p className="text-gray-700 mb-4">
+              {warningType === 'scheduling'
+                ? 'Turning this ON will make CV triggers active even during scheduled content. This means triggered content can interrupt your scheduled programming.'
+                : 'Turning this OFF will deactivate CV triggers during normal playlist playback. Triggered content will not be shown during regular content rotation.'}
+            </p>
+            <div className="mb-6">
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={dontShowAgain[warningType]}
+                  onChange={(e) =>
+                    setDontShowAgain({
+                      ...dontShowAgain,
+                      [warningType]: e.target.checked,
+                    })
+                  }
+                  className="rounded"
+                />
+                <span className="text-sm text-gray-600">Don't show this again</span>
+              </label>
             </div>
-
-            {cameras.length === 0 && (
-              <div className="text-center py-16 bg-white rounded-xl border-2 border-dashed border-gray-100">
-                <p className="text-gray-400 font-medium">No cameras configured for this screen.</p>
-              </div>
-            )}
-          </>
-        )}
-
-        {/* Warning Modal */}
-        {showWarning && (
-          <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl p-8 max-w-md w-full shadow-2xl animate-in zoom-in duration-200">
-              <h3 className="text-lg font-bold mb-3 text-gray-900">Confirm Change</h3>
-              <p className="text-gray-600 text-sm leading-relaxed mb-6">
-                {warningType === 'scheduling'
-                  ? 'Turning this ON will make CV triggers active even during scheduled content. This means triggered content can interrupt your scheduled programming.'
-                  : 'Turning this OFF will deactivate CV triggers during normal playlist playback. Triggered content will not be shown during regular rotation.'}
-              </p>
-              <div className="mb-8">
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={dontShowAgain[warningType]}
-                    onChange={(e) => setDontShowAgain({ ...dontShowAgain, [warningType]: e.target.checked })}
-                    className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="text-sm text-gray-500">Don't show this again</span>
-                </label>
-              </div>
-              <div className="flex gap-3 justify-end">
-                <button
-                  onClick={handleWarningCancel}
-                  className="px-4 py-2 text-sm font-bold text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleWarningConfirm}
-                  className="px-4 py-2 text-sm font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Continue
-                </button>
-              </div>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={handleWarningCancel}
+                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleWarningConfirm}
+                className="px-4 py-2 text-white bg-gray-900 rounded-lg hover:bg-gray-800"
+              >
+                Continue
+              </button>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
