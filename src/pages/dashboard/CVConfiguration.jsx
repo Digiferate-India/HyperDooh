@@ -4,6 +4,92 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 
+// Modern 3D Toggle Switch Component
+const ToggleSwitch = ({ isOn, onToggle, label, tooltip }) => {
+  return (
+    <div className="flex items-center space-x-3">
+      <button
+        type="button"
+        onClick={onToggle}
+        className={`
+          relative inline-flex items-center h-10 w-[72px] rounded-full
+          transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2
+          ${isOn 
+            ? 'bg-gradient-to-b from-emerald-400 to-emerald-500 shadow-[inset_0_2px_4px_rgba(255,255,255,0.3),0_4px_8px_rgba(16,185,129,0.3)] focus:ring-emerald-500' 
+            : 'bg-gradient-to-b from-slate-500 to-slate-600 shadow-[inset_0_2px_4px_rgba(255,255,255,0.1),0_4px_8px_rgba(0,0,0,0.2)] focus:ring-slate-400'
+          }
+        `}
+        aria-checked={isOn}
+        role="switch"
+      >
+        <span className="sr-only">{label}</span>
+        
+        {/* Checkmark Icon (visible when ON) */}
+        <span
+          className={`
+            absolute left-2.5 flex items-center justify-center
+            transition-opacity duration-200
+            ${isOn ? 'opacity-100' : 'opacity-0'}
+          `}
+        >
+          <svg 
+            className="w-5 h-5 text-white drop-shadow-sm" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor" 
+            strokeWidth={3}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </span>
+        
+        {/* X Icon (visible when OFF) */}
+        <span
+          className={`
+            absolute right-2.5 flex items-center justify-center
+            transition-opacity duration-200
+            ${isOn ? 'opacity-0' : 'opacity-100'}
+          `}
+        >
+          <svg 
+            className="w-4 h-4 text-slate-400" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor" 
+            strokeWidth={3}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </span>
+        
+        {/* Toggle Knob */}
+        <span
+          className={`
+            inline-block w-8 h-8 transform rounded-full
+            bg-gradient-to-b from-white to-gray-100
+            shadow-[0_2px_8px_rgba(0,0,0,0.2),inset_0_-2px_4px_rgba(0,0,0,0.05)]
+            transition-transform duration-300 ease-in-out
+            ${isOn ? 'translate-x-9' : 'translate-x-1'}
+          `}
+        />
+      </button>
+      
+      <span className="text-sm font-medium">{label}</span>
+      
+      {tooltip && (
+        <div className="relative group">
+          <svg className="w-4 h-4 text-gray-400 cursor-help" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+          </svg>
+          <div className="invisible group-hover:visible absolute left-0 top-6 w-64 p-2 bg-gray-800 text-white text-xs rounded shadow-lg z-10">
+            {tooltip}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 function CVConfiguration() {
   const [screens, setScreens] = useState([]);
   const [selectedScreen, setSelectedScreen] = useState('');
@@ -191,11 +277,11 @@ function CVConfiguration() {
 
   const handleSwitchChange = (cameraId, field, newValue) => {
     const config = cvConfigs[cameraId] || {};
-    
+
     // Check if this is a change from default and if warning should be shown
     const isSchedulingSwitch = field === 'allow_triggers_during_scheduled';
     const isCvSwitch = field === 'enable_cv_triggers';
-    
+
     if (isSchedulingSwitch && newValue === true && !dontShowAgain.scheduling) {
       // Turning ON scheduling triggers (non-default)
       setWarningType('scheduling');
@@ -203,7 +289,7 @@ function CVConfiguration() {
       setShowWarning(true);
       return;
     }
-    
+
     if (isCvSwitch && newValue === false && !dontShowAgain.cv) {
       // Turning OFF CV triggers (non-default)
       setWarningType('cv');
@@ -211,7 +297,7 @@ function CVConfiguration() {
       setShowWarning(true);
       return;
     }
-    
+
     // No warning needed, apply change directly
     applyConfigChange(cameraId, field, newValue);
   };
@@ -272,7 +358,7 @@ function CVConfiguration() {
           <div className="mb-6">
             <button
               onClick={() => setShowAddCamera(!showAddCamera)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+              className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800"
             >
               {showAddCamera ? 'Cancel' : '+ Add Camera'}
             </button>
@@ -346,7 +432,7 @@ function CVConfiguration() {
                     </div>
                     <button
                       onClick={() => handleDeleteCamera(camera.id)}
-                      className="text-red-600 hover:text-red-800"
+                      className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800"
                     >
                       Delete
                     </button>
@@ -395,103 +481,33 @@ function CVConfiguration() {
                     </div>
                   </div>
 
-                  {/* New Trigger Control Switches */}
+                  {/* New Trigger Control Switches with Modern 3D Design */}
                   <div className="border-t pt-4 mt-4">
                     <h4 className="text-sm font-semibold mb-3 text-gray-700">Trigger Behavior Controls</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
                       {/* Enable CV Triggers Switch */}
-                      <div>
-                        <div className="flex items-center space-x-3">
-                          <button
-                            type="button"
-                            onClick={() => handleSwitchChange(camera.id, 'enable_cv_triggers', !(config.enable_cv_triggers !== false))}
-                            className={`relative inline-flex items-center h-10 rounded-full w-20 transition-colors duration-200 focus:outline-none ${
-                              config.enable_cv_triggers !== false ? 'bg-green-500' : 'bg-gray-300'
-                            }`}
-                          >
-                            <span className="sr-only">Enable CV Triggers</span>
-                            <span
-                              className={`inline-block w-8 h-8 transform rounded-full bg-white shadow-lg transition-transform duration-200 ${
-                                config.enable_cv_triggers !== false ? 'translate-x-11' : 'translate-x-1'
-                              }`}
-                            />
-                            <span
-                              className={`absolute inset-0 flex items-center justify-center text-xs font-bold text-white transition-opacity duration-200 ${
-                                config.enable_cv_triggers !== false ? 'opacity-100' : 'opacity-0'
-                              }`}
-                            >
-                              ON
-                            </span>
-                            <span
-                              className={`absolute inset-0 flex items-center justify-center text-xs font-bold text-gray-600 transition-opacity duration-200 ${
-                                config.enable_cv_triggers !== false ? 'opacity-0' : 'opacity-100'
-                              }`}
-                            >
-                              OFF
-                            </span>
-                          </button>
-                          <span className="text-sm font-medium">Enable CV Triggers</span>
-                          <div className="relative group">
-                            <svg className="w-4 h-4 text-gray-400 cursor-help" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                            </svg>
-                            <div className="invisible group-hover:visible absolute left-0 top-6 w-64 p-2 bg-gray-800 text-white text-xs rounded shadow-lg z-10">
-                              Controls whether CV triggers are active during normal content playlist. Default: ON
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                      <ToggleSwitch
+                        isOn={config.enable_cv_triggers !== false}
+                        onToggle={() => handleSwitchChange(camera.id, 'enable_cv_triggers', !(config.enable_cv_triggers !== false))}
+                        label="Enable CV Triggers"
+                        tooltip="Controls whether CV triggers are active during normal content playlist. Default: ON"
+                      />
 
                       {/* Allow Triggers During Scheduled Content Switch */}
-                      <div>
-                        <div className="flex items-center space-x-3">
-                          <button
-                            type="button"
-                            onClick={() => handleSwitchChange(camera.id, 'allow_triggers_during_scheduled', !(config.allow_triggers_during_scheduled === true))}
-                            className={`relative inline-flex items-center h-10 rounded-full w-20 transition-colors duration-200 focus:outline-none ${
-                              config.allow_triggers_during_scheduled === true ? 'bg-green-500' : 'bg-gray-300'
-                            }`}
-                          >
-                            <span className="sr-only">Allow Triggers During Scheduled Content</span>
-                            <span
-                              className={`inline-block w-8 h-8 transform rounded-full bg-white shadow-lg transition-transform duration-200 ${
-                                config.allow_triggers_during_scheduled === true ? 'translate-x-11' : 'translate-x-1'
-                              }`}
-                            />
-                            <span
-                              className={`absolute inset-0 flex items-center justify-center text-xs font-bold text-white transition-opacity duration-200 ${
-                                config.allow_triggers_during_scheduled === true ? 'opacity-100' : 'opacity-0'
-                              }`}
-                            >
-                              ON
-                            </span>
-                            <span
-                              className={`absolute inset-0 flex items-center justify-center text-xs font-bold text-gray-600 transition-opacity duration-200 ${
-                                config.allow_triggers_during_scheduled === true ? 'opacity-0' : 'opacity-100'
-                              }`}
-                            >
-                              OFF
-                            </span>
-                          </button>
-                          <span className="text-sm font-medium">Allow Triggers During Scheduled Content</span>
-                          <div className="relative group">
-                            <svg className="w-4 h-4 text-gray-400 cursor-help" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                            </svg>
-                            <div className="invisible group-hover:visible absolute left-0 top-6 w-64 p-2 bg-gray-800 text-white text-xs rounded shadow-lg z-10">
-                              Controls whether CV triggers can interrupt scheduled content. Default: OFF (triggers only work during normal playlist)
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                      <ToggleSwitch
+                        isOn={config.allow_triggers_during_scheduled === true}
+                        onToggle={() => handleSwitchChange(camera.id, 'allow_triggers_during_scheduled', !(config.allow_triggers_during_scheduled === true))}
+                        label="Allow Triggers During Scheduled Content"
+                        tooltip="Controls whether CV triggers can interrupt scheduled content. Default: OFF (triggers only work during normal playlist)"
+                      />
 
                     </div>
                   </div>
 
                   <button
                     onClick={() => handleUpdateConfig(camera.id)}
-                    className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                    className="mt-4 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800"
                   >
                     Save Configuration
                   </button>
@@ -541,7 +557,7 @@ function CVConfiguration() {
               </button>
               <button
                 onClick={handleWarningConfirm}
-                className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                className="px-4 py-2 text-white bg-gray-900 rounded-lg hover:bg-gray-800"
               >
                 Continue
               </button>
