@@ -1,231 +1,556 @@
+// src/pages/dashboard/CVConfiguration.jsx
+// CV Configuration Dashboard Page (Updated with trigger control switches)
+
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from '../../lib/supabaseClient';
 
-// --- Constants for Days ---
-const DAYS_OPTIONS = [
-  { id: 'Sun', label: 'Every Sunday' },
-  { id: 'Mon', label: 'Every Monday' },
-  { id: 'Tue', label: 'Every Tuesday' },
-  { id: 'Wed', label: 'Every Wednesday' },
-  { id: 'Thu', label: 'Every Thursday' },
-  { id: 'Fri', label: 'Every Friday' },
-  { id: 'Sat', label: 'Every Saturday' },
-];
+function CVConfiguration() {
+  const [screens, setScreens] = useState([]);
+  const [selectedScreen, setSelectedScreen] = useState('');
+  const [cameras, setCameras] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showAddCamera, setShowAddCamera] = useState(false);
 
-// --- Custom Dropdown Component (Unchanged) ---
-function DayPickerDropdown({ selectedDays, onChange }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const selectedArray = selectedDays ? selectedDays.split(',') : [];
+  // New camera form state
+  const [newCamera, setNewCamera] = useState({
+    name: '',
+    location: '',
+    aws_camera_identifier: '',
+  });
 
-  const toggleDay = (e, dayId) => {
-    e.stopPropagation();
-    let newArray;
-    if (selectedArray.includes(dayId)) {
-      newArray = selectedArray.filter((d) => d !== dayId);
-    } else {
-      newArray = [...selectedArray, dayId];
+  // CV Config state (toggles + new trigger controls)
+  const [cvConfigs, setCvConfigs] = useState({});
+
+  // Warning popup state
+  const [showWarning, setShowWarning] = useState(false);
+  const [warningType, setWarningType] = useState(''); // 'scheduling' or 'cv'
+  const [warningCameraId, setWarningCameraId] = useState(null);
+  const [dontShowAgain, setDontShowAgain] = useState({
+    scheduling: false,
+    cv: false,
+  });
+
+  useEffect(() => {
+    fetchScreens();
+  }, []);
+
+  useEffect(() => {
+    if (selectedScreen) {
+      fetchCameras();
     }
-    const sortedDays = DAYS_OPTIONS
-      .filter(d => newArray.includes(d.id))
-      .map(d => d.id);
-    onChange(sortedDays.join(','));
+  }, [selectedScreen]);
+
+  const fetchScreens = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('screens')
+        .select('id, custom_name')
+        .order('custom_name');
+
+      if (error) throw error;
+      setScreens(data || []);
+
+      if (data && data.length > 0 && !selectedScreen) {
+        setSelectedScreen(data[0].id);
+      }
+    } catch (error) {
+      alert('Error fetching screens: ' + error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const getLabel = () => {
-    if (selectedArray.length === 0) return "Select Days...";
-    if (selectedArray.length === 7) return "Every Day";
-    return selectedArray.join(', ');
+  const fetchCameras = async () => {
+    if (!selectedScreen) return;
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await supabase
+        .from('cameras')
+        .select('*, cv_configs(*)')
+        .eq('screen_id', selectedScreen)
+        .order('name');
+
+      if (error) throw error;
+      setCameras(data || []);
+
+      // Initialize CV configs (toggles + new trigger controls)
+      const configs = {};
+      data?.forEach((camera) => {
+        const config = camera.cv_configs?.[0];
+        configs[camera.id] = {
+          enable_age: config?.enable_age !== false,
+          enable_gender: config?.enable_gender !== false,
+          allow_triggers_during_scheduled: config?.allow_triggers_during_scheduled === true,
+          enable_cv_triggers: config?.enable_cv_triggers !== false,
+        };
+      });
+
+      setCvConfigs(configs);
+    } catch (error) {
+      alert('Error fetching cameras: ' + error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  const handleAddCamera = async () => {
+    if (!selectedScreen) {
+      alert('Please select a screen first');
+      return;
+    }
+
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data: camera, error: cameraError } = await supabase
+        .from('cameras')
+        .insert({
+          screen_id: selectedScreen,
+          name: newCamera.name,
+          location: newCamera.location,
+          aws_camera_identifier: newCamera.aws_camera_identifier,
+          is_active: true,
+        })
+        .select()
+        .single();
+
+      if (cameraError) throw cameraError;
+
+      // Set local UI defaults for new camera
+      setCvConfigs((prev) => ({
+        ...prev,
+        [camera.id]: {
+          enable_age: true,
+          enable_gender: true,
+          allow_triggers_during_scheduled: false,
+          enable_cv_triggers: true,
+        },
+      }));
+
+      setNewCamera({ name: '', location: '', aws_camera_identifier: '' });
+      setShowAddCamera(false);
+      fetchCameras();
+    } catch (error) {
+      alert('Error adding camera: ' + error.message);
+    }
+  };
+
+  const handleUpdateConfig = async (cameraId) => {
+    try {
+      const config = cvConfigs[cameraId] || {};
+      const camera = cameras.find((c) => c.id === cameraId);
+      const existingConfig = camera?.cv_configs?.[0];
+
+      // Save all toggles (age/gender + trigger controls)
+      const payload = {
+        camera_id: cameraId,
+        enable_age: config.enable_age !== false,
+        enable_gender: config.enable_gender !== false,
+        allow_triggers_during_scheduled: config.allow_triggers_during_scheduled === true,
+        enable_cv_triggers: config.enable_cv_triggers !== false,
+        updated_at: new Date().toISOString(),
+      };
+
+      if (existingConfig) {
+        const { error } = await supabase
+          .from('cv_configs')
+          .update(payload)
+          .eq('id', existingConfig.id);
+
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('cv_configs').insert(payload);
+        if (error) throw error;
+      }
+
+      alert('Configuration saved successfully!');
+      fetchCameras();
+    } catch (error) {
+      alert('Error saving configuration: ' + error.message);
+    }
+  };
+
+  const handleDeleteCamera = async (cameraId) => {
+    if (!window.confirm('Are you sure you want to delete this camera?')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase.from('cameras').delete().eq('id', cameraId);
+
+      if (error) throw error;
+      fetchCameras();
+    } catch (error) {
+      alert('Error deleting camera: ' + error.message);
+    }
+  };
+
+  const handleSwitchChange = (cameraId, field, newValue) => {
+    const config = cvConfigs[cameraId] || {};
+    
+    // Check if this is a change from default and if warning should be shown
+    const isSchedulingSwitch = field === 'allow_triggers_during_scheduled';
+    const isCvSwitch = field === 'enable_cv_triggers';
+    
+    if (isSchedulingSwitch && newValue === true && !dontShowAgain.scheduling) {
+      // Turning ON scheduling triggers (non-default)
+      setWarningType('scheduling');
+      setWarningCameraId(cameraId);
+      setShowWarning(true);
+      return;
+    }
+    
+    if (isCvSwitch && newValue === false && !dontShowAgain.cv) {
+      // Turning OFF CV triggers (non-default)
+      setWarningType('cv');
+      setWarningCameraId(cameraId);
+      setShowWarning(true);
+      return;
+    }
+    
+    // No warning needed, apply change directly
+    applyConfigChange(cameraId, field, newValue);
+  };
+
+  const applyConfigChange = (cameraId, field, newValue) => {
+    setCvConfigs({
+      ...cvConfigs,
+      [cameraId]: {
+        ...cvConfigs[cameraId],
+        [field]: newValue,
+      },
+    });
+  };
+
+  const handleWarningConfirm = () => {
+    if (warningCameraId) {
+      const field = warningType === 'scheduling' ? 'allow_triggers_during_scheduled' : 'enable_cv_triggers';
+      const newValue = warningType === 'scheduling' ? true : false;
+      applyConfigChange(warningCameraId, field, newValue);
+    }
+    setShowWarning(false);
+    setWarningCameraId(null);
+  };
+
+  const handleWarningCancel = () => {
+    setShowWarning(false);
+    setWarningCameraId(null);
+  };
+
+  if (isLoading && !selectedScreen) {
+    return <div className="p-6">Loading...</div>;
+  }
 
   return (
-    <div className="relative w-full">
-      <button
-        type="button"
-        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsOpen(!isOpen); }}
-        className="w-full border border-gray-300 !bg-white !text-gray-900 p-1 rounded text-[10px] text-left flex justify-between items-center shadow-sm hover:border-blue-500 focus:outline-none"
-      >
-        <span className="truncate font-medium">{getLabel()}</span>
-        <svg xmlns="http://www.w3.org/2000/svg" className={`h-3 w-3 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
+    <div className="p-6 bg-white text-gray-900 min-h-screen">
+      <h1 className="text-2xl font-bold mb-6">CV Configuration</h1>
 
-      {isOpen && (
+      {/* Screen Selection */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium mb-2">Select Screen:</label>
+        <select
+          value={selectedScreen}
+          onChange={(e) => setSelectedScreen(e.target.value)}
+          className="border p-2 rounded-lg w-full max-w-md"
+        >
+          <option value="">Select a screen</option>
+          {screens.map((screen) => (
+            <option key={screen.id} value={screen.id}>
+              {screen.custom_name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {selectedScreen && (
         <>
-          <div className="fixed inset-0 z-40 cursor-default" onClick={(e) => { e.stopPropagation(); setIsOpen(false); }} />
-          <div className="absolute z-50 mt-1 w-full bg-white border border-gray-300 rounded shadow-xl max-h-40 overflow-y-auto left-0">
-            {DAYS_OPTIONS.map((day) => (
-              <div key={day.id} onClick={(e) => toggleDay(e, day.id)} className="flex items-center px-2 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-0">
-                <input type="checkbox" checked={selectedArray.includes(day.id)} onChange={() => {}} className="mr-2 h-3 w-3 text-blue-600 rounded border-gray-300 pointer-events-none" />
-                <span className="text-[10px] text-gray-700 font-medium select-none">{day.label}</span>
-              </div>
-            ))}
+          {/* Add Camera Button */}
+          <div className="mb-6">
+            <button
+              onClick={() => setShowAddCamera(!showAddCamera)}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            >
+              {showAddCamera ? 'Cancel' : '+ Add Camera'}
+            </button>
           </div>
+
+          {/* Add Camera Form */}
+          {showAddCamera && (
+            <div className="mb-6 p-4 border rounded-lg bg-gray-50">
+              <h3 className="font-semibold mb-4">Add New Camera</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Name</label>
+                  <input
+                    type="text"
+                    value={newCamera.name}
+                    onChange={(e) => setNewCamera({ ...newCamera, name: e.target.value })}
+                    className="w-full border p-2 rounded"
+                    placeholder="Front Camera"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Location</label>
+                  <input
+                    type="text"
+                    value={newCamera.location}
+                    onChange={(e) =>
+                      setNewCamera({ ...newCamera, location: e.target.value })
+                    }
+                    className="w-full border p-2 rounded"
+                    placeholder="Entrance"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">AWS Camera ID</label>
+                  <input
+                    type="text"
+                    value={newCamera.aws_camera_identifier}
+                    onChange={(e) =>
+                      setNewCamera({
+                        ...newCamera,
+                        aws_camera_identifier: e.target.value,
+                      })
+                    }
+                    className="w-full border p-2 rounded"
+                    placeholder="cam-001"
+                  />
+                </div>
+              </div>
+              <button
+                onClick={handleAddCamera}
+                className="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+              >
+                Add Camera
+              </button>
+            </div>
+          )}
+
+          {/* Cameras List */}
+          <div className="space-y-6">
+            {cameras.map((camera) => {
+              const config = cvConfigs[camera.id] || {};
+              return (
+                <div key={camera.id} className="border rounded-lg p-6 bg-white shadow-sm">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold">{camera.name}</h3>
+                      <p className="text-sm text-gray-600">Location: {camera.location}</p>
+                      <p className="text-sm text-gray-600">
+                        AWS ID: {camera.aws_camera_identifier}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteCamera(camera.id)}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      Delete
+                    </button>
+                  </div>
+
+                  {/* CV Detection Toggles */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          checked={config.enable_age !== false}
+                          onChange={(e) =>
+                            setCvConfigs({
+                              ...cvConfigs,
+                              [camera.id]: {
+                                ...config,
+                                enable_age: e.target.checked,
+                              },
+                            })
+                          }
+                          className="rounded"
+                        />
+                        <span className="text-sm font-medium">Enable Age Detection</span>
+                      </label>
+                    </div>
+
+                    <div>
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          checked={config.enable_gender !== false}
+                          onChange={(e) =>
+                            setCvConfigs({
+                              ...cvConfigs,
+                              [camera.id]: {
+                                ...config,
+                                enable_gender: e.target.checked,
+                              },
+                            })
+                          }
+                          className="rounded"
+                        />
+                        <span className="text-sm font-medium">Enable Gender Detection</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* New Trigger Control Switches */}
+                  <div className="border-t pt-4 mt-4">
+                    <h4 className="text-sm font-semibold mb-3 text-gray-700">Trigger Behavior Controls</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      
+                      {/* Enable CV Triggers Switch */}
+                      <div>
+                        <div className="flex items-center space-x-3">
+                          <button
+                            type="button"
+                            onClick={() => handleSwitchChange(camera.id, 'enable_cv_triggers', !(config.enable_cv_triggers !== false))}
+                            className={`relative inline-flex items-center h-11 rounded-full w-24 transition-colors duration-200 focus:outline-none ${
+                              config.enable_cv_triggers !== false ? 'bg-green-500' : 'bg-gray-400'
+                            }`}
+                          >
+                            <span className="sr-only">Enable CV Triggers</span>
+                            <span
+                              className={`inline-block w-9 h-9 transform rounded-full bg-white shadow-lg transition-transform duration-200 ${
+                                config.enable_cv_triggers !== false ? 'translate-x-14' : 'translate-x-1'
+                              }`}
+                            />
+                            <span
+                              className={`absolute left-3 text-xs font-bold text-white transition-opacity duration-200 ${
+                                config.enable_cv_triggers !== false ? 'opacity-100' : 'opacity-0'
+                              }`}
+                            >
+                              ON
+                            </span>
+                            <span
+                              className={`absolute right-2 text-xs font-bold text-gray-700 transition-opacity duration-200 ${
+                                config.enable_cv_triggers !== false ? 'opacity-0' : 'opacity-100'
+                              }`}
+                            >
+                              OFF
+                            </span>
+                          </button>
+                          <span className="text-sm font-medium">Enable CV Triggers</span>
+                          <div className="relative group">
+                            <svg className="w-4 h-4 text-gray-400 cursor-help" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                            </svg>
+                            <div className="invisible group-hover:visible absolute left-0 top-6 w-64 p-2 bg-gray-800 text-white text-xs rounded shadow-lg z-10">
+                              Controls whether CV triggers are active during normal content playlist. Default: ON
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Allow Triggers During Scheduled Content Switch */}
+                      <div>
+                        <div className="flex items-center space-x-3">
+                          <button
+                            type="button"
+                            onClick={() => handleSwitchChange(camera.id, 'allow_triggers_during_scheduled', !(config.allow_triggers_during_scheduled === true))}
+                            className={`relative inline-flex items-center h-11 rounded-full w-24 transition-colors duration-200 focus:outline-none ${
+                              config.allow_triggers_during_scheduled === true ? 'bg-green-500' : 'bg-gray-400'
+                            }`}
+                          >
+                            <span className="sr-only">Allow Triggers During Scheduled Content</span>
+                            <span
+                              className={`inline-block w-9 h-9 transform rounded-full bg-white shadow-lg transition-transform duration-200 ${
+                                config.allow_triggers_during_scheduled === true ? 'translate-x-14' : 'translate-x-1'
+                              }`}
+                            />
+                            <span
+                              className={`absolute left-3 text-xs font-bold text-white transition-opacity duration-200 ${
+                                config.allow_triggers_during_scheduled === true ? 'opacity-100' : 'opacity-0'
+                              }`}
+                            >
+                              ON
+                            </span>
+                            <span
+                              className={`absolute right-2 text-xs font-bold text-gray-700 transition-opacity duration-200 ${
+                                config.allow_triggers_during_scheduled === true ? 'opacity-0' : 'opacity-100'
+                              }`}
+                            >
+                              OFF
+                            </span>
+                          </button>
+                          <span className="text-sm font-medium">Allow Triggers During Scheduled Content</span>
+                          <div className="relative group">
+                            <svg className="w-4 h-4 text-gray-400 cursor-help" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                            </svg>
+                            <div className="invisible group-hover:visible absolute left-0 top-6 w-64 p-2 bg-gray-800 text-white text-xs rounded shadow-lg z-10">
+                              Controls whether CV triggers can interrupt scheduled content. Default: OFF (triggers only work during normal playlist)
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => handleUpdateConfig(camera.id)}
+                    className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                  >
+                    Save Configuration
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          {cameras.length === 0 && (
+            <p className="text-gray-500">No cameras configured for this screen.</p>
+          )}
         </>
+      )}
+
+      {/* Warning Popup Modal */}
+      {showWarning && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+            <h3 className="text-lg font-semibold mb-4">Warning</h3>
+            <p className="text-gray-700 mb-4">
+              {warningType === 'scheduling'
+                ? 'Turning this ON will make CV triggers active even during scheduled content. This means triggered content can interrupt your scheduled programming.'
+                : 'Turning this OFF will deactivate CV triggers during normal playlist playback. Triggered content will not be shown during regular content rotation.'}
+            </p>
+            <div className="mb-6">
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={dontShowAgain[warningType]}
+                  onChange={(e) =>
+                    setDontShowAgain({
+                      ...dontShowAgain,
+                      [warningType]: e.target.checked,
+                    })
+                  }
+                  className="rounded"
+                />
+                <span className="text-sm text-gray-600">Don't show this again</span>
+              </label>
+            </div>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={handleWarningCancel}
+                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleWarningConfirm}
+                className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
 }
 
-// --- Main Component ---
-// 🆕 UPDATED: Added isExpanded and onToggle to props
-function MediaCard({ mediaItem, screenId, initialAssignment, onAssignmentChange, isExpanded, onToggle }) {
-  const [gender, setGender] = useState('All');
-  const [ageGroup, setAgeGroup] = useState('All');
-  const [duration, setDuration] = useState('');
-  
-  // Recurring Schedule States
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [dailyStartTime, setDailyStartTime] = useState('');
-  const [dailyEndTime, setDailyEndTime] = useState('');
-  const [daysOfWeek, setDaysOfWeek] = useState('Mon,Tue,Wed,Thu,Fri,Sat,Sun');
-
-  const [orientation, setOrientation] = useState('any');
-  const [isSaving, setIsSaving] = useState(false);
-  const [isAssigned, setIsAssigned] = useState(!!initialAssignment);
-
-  useEffect(() => {
-    if (initialAssignment) {
-      setGender(initialAssignment.gender || 'All');
-      setAgeGroup(initialAssignment.age_group || 'All');
-      setDuration(initialAssignment.duration || '');
-      setOrientation(initialAssignment.orientation || 'any');
-      setStartDate(initialAssignment.schedule_start_date || '');
-      setEndDate(initialAssignment.schedule_end_date || '');
-      setDailyStartTime(initialAssignment.daily_start_time || '');
-      setDailyEndTime(initialAssignment.daily_end_time || '');
-      if(initialAssignment.days_of_week) setDaysOfWeek(initialAssignment.days_of_week);
-      setIsAssigned(true);
-    } else {
-      setIsAssigned(false);
-    }
-  }, [initialAssignment]);
-
-  const handleClearSchedule = () => {
-    setStartDate(''); setEndDate(''); setDailyStartTime(''); setDailyEndTime('');
-  };
-
-  const handleSave = async () => {
-    if (!screenId) { alert('Please select a screen first.'); return; }
-    setIsSaving(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("You must be logged in.");
-      
-      const updatedData = {
-        screen_id: screenId, media_id: mediaItem.id, user_id: user.id,
-        duration: duration ? parseInt(duration, 10) : null,
-        schedule_start_date: startDate || null, schedule_end_date: endDate || null,
-        daily_start_time: dailyStartTime || null, daily_end_time: dailyEndTime || null,
-        days_of_week: daysOfWeek || null, start_time: null, end_time: null,
-        gender, age_group: ageGroup, orientation,
-      };
-      
-      const { data, error } = await supabase.from('screens_media').upsert(updatedData, { onConflict: 'screen_id, media_id' }).select().single();
-      if (error) throw error; 
-      onAssignmentChange(data); setIsAssigned(true);
-    } catch (error) { alert(`Error saving: ${error.message}`); } finally { setIsSaving(false); }
-  };
-
-  const handleUnassign = async () => {
-    if (!screenId) return;
-    if (!window.confirm("Unassign this media?")) return;
-    setIsSaving(true);
-    try {
-      const { error } = await supabase.from('screens_media').delete().eq('screen_id', screenId).eq('media_id', mediaItem.id);
-      if (error) throw error;
-      onAssignmentChange({ media_id: mediaItem.id, isUnassigned: true });
-      setIsAssigned(false);
-      setDuration(''); setStartDate(''); setEndDate(''); setDailyStartTime(''); setDailyEndTime('');
-    } catch (error) { alert(`Error: ${error.message}`); } finally { setIsSaving(false); }
-  };
-
-  const imageUrl = mediaItem.thumbnail_path || mediaItem.file_path;
-
-  return (
-    <div className={`border rounded-lg shadow-md bg-white flex flex-col relative transition-all duration-300 ${isExpanded ? 'ring-2 ring-blue-500' : ''}`}>
-      {/* 1. Always Visible: Thumbnail & Title */}
-      <div className="relative group cursor-pointer" onClick={onToggle}>
-        <img src={imageUrl} alt={mediaItem.file_name} className="w-full h-40 object-cover rounded-t-lg" />
-        {/* Overlay showing assignment status */}
-        {isAssigned && (
-          <div className="absolute top-2 right-2 bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full shadow">
-            Assigned
-          </div>
-        )}
-      </div>
-
-      <div className="p-4 flex-grow flex flex-col">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="font-semibold truncate text-sm flex-1" title={mediaItem.file_name}>
-            {mediaItem.file_name}
-          </h3>
-        </div>
-
-        {/* 2. Toggle Button: "Set Triggers" vs "Close" */}
-        <button 
-          onClick={onToggle}
-          className={`text-xs font-bold px-3 py-1 rounded border mb-2 transition-colors w-full ${
-            isExpanded 
-              ? 'bg-gray-100 text-red-600 hover:bg-gray-200' 
-              : 'bg-blue-50 text-white hover:bg-blue-100 border-blue-200'
-          }`}
-        >
-          {isExpanded ? 'Close Settings' : 'Set Schedule ⚙️'}
-        </button>
-        
-        {/* 3. Conditional Rendering: The Form */}
-        {isExpanded && (
-          <div className="space-y-3 flex-grow mt-2 border-t pt-2 animate-fadeIn">
-             <div>
-              <label className="text-xs font-bold text-gray-500">Duration (seconds)</label>
-              <input type="number" value={duration} onChange={(e) => setDuration(e.target.value)} className="w-full p-1 border rounded" placeholder="Auto" />
-            </div>
-            
-            <div className="p-2 bg-gray-50 border rounded relative">
-              <div className="flex justify-between items-center mb-1">
-                <label className="text-xs font-bold text-blue-800">Schedule</label>
-                <button type="button" onClick={handleClearSchedule} className="text-[10px] text-red-600 hover:underline !bg-transparent">Clear</button>
-              </div>
-              <div className="grid grid-cols-2 gap-1 mb-1">
-                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full p-1 border rounded text-[10px]" />
-                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full p-1 border rounded text-[10px]" />
-              </div>
-              <div className="grid grid-cols-2 gap-1 mb-1">
-                <input type="time" value={dailyStartTime} onChange={(e) => setDailyStartTime(e.target.value)} className="w-full p-1 border rounded text-[10px]" />
-                <input type="time" value={dailyEndTime} onChange={(e) => setDailyEndTime(e.target.value)} className="w-full p-1 border rounded text-[10px]" />
-              </div>
-              <div className="mt-1">
-                <label className="text-[10px] font-bold text-gray-500 block mb-0.5">Repeat On</label>
-                <DayPickerDropdown selectedDays={daysOfWeek} onChange={setDaysOfWeek} />
-              </div>
-            </div>
-
-            <div>
-              <label className="text-xs font-bold text-gray-500">Orientation</label>
-              <select value={orientation} onChange={(e) => setOrientation(e.target.value)} className="w-full p-1 border rounded text-xs">
-                <option value="any">Any</option><option value="landscape">Landscape</option><option value="portrait">Portrait</option>
-              </select>
-            </div>
-
-            <div className="mt-4 pt-2 border-t">
-              {!isAssigned ? (
-                <button onClick={handleSave} disabled={!screenId || isSaving} className={`w-full px-4 py-2 rounded text-white font-semibold text-sm transition-colors ${!screenId ? 'bg-gray-400 cursor-not-allowed' : isSaving ? 'bg-gray-500' : 'bg-blue-600 hover:bg-blue-700'}`}>
-                  {isSaving ? 'Saving...' : 'Assign'}
-                </button>
-              ) : (
-                <div className="grid grid-cols-2 gap-2">
-                  <button onClick={handleSave} disabled={isSaving} className="w-full px-2 py-2 rounded text-white font-semibold text-sm bg-green-600 hover:bg-green-700 disabled:bg-gray-400">Update</button>
-                  <button onClick={handleUnassign} disabled={isSaving} className="w-full px-2 py-2 rounded text-white font-semibold text-sm bg-red-600 hover:bg-red-700 disabled:bg-gray-400">Unassign</button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-export default MediaCard;
+export default CVConfiguration;
